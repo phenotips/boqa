@@ -36,10 +36,25 @@
 package sonumina.boqa;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Scanner;
 
 import ontologizer.GlobalPreferences;
 import ontologizer.OntologizerThreadGroups;
 import ontologizer.benchmark.Datafiles;
+import ontologizer.go.Term;
+import ontologizer.types.ByteString;
+import ontologizer.go.ParentTermID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -47,8 +62,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import sonumina.boqa.benchmark.Benchmark;
 import sonumina.boqa.calculation.BOQA;
+import sonumina.boqa.calculation.Observations;
 
 /**
  * Main entry point of the BOQA benchmark.
@@ -59,36 +74,32 @@ public class BOQABenchmark
 {
 	static private String ontologyPath;
 	static private String annotationPath;
-
-	static private double ALPHA = 0.002;
-	static private double BETA = 0.1;
-	static private int MAX_TERMS = -1;
-	static private int SAMPLES_PER_ITEM = 5;
-	static private boolean CONSIDER_FREQUENCIES_ONLY = false;
-	static private int SIZE_OF_SCORE_DISTRIBUTION = 250000;
-	static private String RESULT_BASE_NAME = "benchmark";
-	
-	/**
+	static private String patientPath;
+	static private String outPath;
+  static private BOQA boqa;
+	static private HashMap<Integer,ByteString> omimMap = null; 
+		/**
 	 * Parses the command line and returns a corresponding
 	 * BOQA object. 
 	 * 
 	 * @param args
 	 */
-	public static BOQA parseCommandLine(String [] args)
+	public static void parseCommandLine(String [] args)
 	{
 	   Options opt = new Options();
 	   opt.addOption("o", "ontology", true, "Path or URL to the ontology file.");
 	   opt.addOption("a", "annotations", true, "Path or URL to files containing annotations.");
-	   opt.addOption("c", "considerFreqOnly", false, "If specified, only items with frequencies are considered.");
-	   opt.addOption("m", "maxTerms", true, "Defines the maximal number of terms a random query can have. Default is " + MAX_TERMS);
-	   opt.addOption("s", "samplesPerItem", true, "Define the number of samples per item. Defaults to " + SAMPLES_PER_ITEM + ".");
-	   opt.addOption("r", "resultBaseName", true, "Defines the base name of the result files that are created during the benchmark. Defaults to \"" + RESULT_BASE_NAME + "\".");
-	   opt.addOption(null, "alpha", true, "Specifies alpha (false-positive rate) during simulation. Default is " + ALPHA + ".");
-	   opt.addOption(null, "beta", true, "Specifies beta (false-negative rate) during simulation. Default is " + BETA + ".");
-	   opt.addOption(null, "sizeOfScoreDistribution", true, "Specifies the size of the score distribution. Default is " + SIZE_OF_SCORE_DISTRIBUTION + ".");
+		 opt.addOption("p", "patient", true, "Path to directory with patients");
+		 opt.addOption("d", "out", true, "Path to output directory");
 	   opt.addOption("h", "help", false, "Shows this help");
 
 	   BOQA boqa = new BOQA();
+		 boqa.setConsiderFrequenciesOnly(false);
+		 boqa.setPrecalculateScoreDistribution(false);
+		 boqa.setCacheScoreDistribution(false);
+		 boqa.setPrecalculateItemMaxs(false);
+		 boqa.setPrecalculateMaxICs(false);
+		 boqa.setMaxFrequencyTerms(2);
 
 	   try
 	   {
@@ -103,40 +114,90 @@ public class BOQABenchmark
 			   System.exit(0);
 		   }
 		   
-		   if (cl.hasOption('m'))
-			   MAX_TERMS = Integer.parseInt(cl.getOptionValue('m'));
-
-		   if (cl.hasOption('c'))
-			   CONSIDER_FREQUENCIES_ONLY = true;
-
-		   if (cl.hasOption('s'))
-			   SAMPLES_PER_ITEM = Integer.parseInt(cl.getOptionValue('s'));
-
-		   SIZE_OF_SCORE_DISTRIBUTION = Integer.parseInt(cl.getOptionValue("sizeOfScoreDistribution", "250000"));
-		   RESULT_BASE_NAME = cl.getOptionValue('r', RESULT_BASE_NAME);
-		   
-		   if (cl.hasOption("alpha"))
-			   ALPHA = Double.parseDouble(cl.getOptionValue("alpha"));
-
-		   if (cl.hasOption("beta"))
-			   BETA = Double.parseDouble(cl.getOptionValue("beta"));
-
 		   ontologyPath = cl.getOptionValue('o',ontologyPath);
 		   annotationPath = cl.getOptionValue('a', annotationPath);
+			 patientPath = cl.getOptionValue('p');
+			 outPath = cl.getOptionValue('d');
 		   
-		   boqa.setSimulationAlpha(ALPHA);
-		   boqa.setSimulationBeta(BETA);
-		   boqa.setConsiderFrequenciesOnly(CONSIDER_FREQUENCIES_ONLY);
-		   boqa.setSimulationMaxTerms(MAX_TERMS);
-		   if (MAX_TERMS != -1)
-			   boqa.setMaxQuerySizeForCachedDistribution(MAX_TERMS);
-		   boqa.setSizeOfScoreDistribution(SIZE_OF_SCORE_DISTRIBUTION);
-	   } catch (ParseException e)
+		 } catch (ParseException e)
 	   {
 		   System.err.println("Faield to parse commandline: " + e.getLocalizedMessage());
 		   System.exit(1);
 	   }
-	   return boqa;
+		 BOQABenchmark.boqa = boqa;
+	}
+
+	public static void addTermAndAncestors(Term t, Observations obsv) {
+		try{
+			int id = boqa.getTermIndex(t);
+			obsv.observations[id] = true;
+			boqa.activateAncestors(id, obsv.observations);
+
+			}catch(NullPointerException e)
+			{
+				System.err.println(t);
+				for(Term p : boqa.getOntology().getTermParents(t))
+				{
+					System.err.println("Parent: " + p);
+					addTermAndAncestors(p, obsv);
+				}
+			}	
+		}
+ /**
+     * @param hpoTermList alist of HPO terms separated by comma, e.g., "HP:0000407,HP:0009830,HP:0002858".
+     */
+  private static ArrayList<String> initializeHPOTermList(String hpoTermList) {
+		String A[] = hpoTermList.split(",");
+		ArrayList<String> hpoList = new ArrayList<String>();
+		for (String a : A) {
+				a = a.trim();
+				if (! a.startsWith("HP:") || a.length() != 10) { /* A well formed HPO term starts with "HP:" and has ten characters. */
+					String e = String.format("Error: malformed HPO input string \"%s\". Could not parse term \"%s\"",hpoTermList,a);
+					System.err.println(e);
+				}
+				hpoList.add(a);
+		}
+		return hpoList;
+  }
+
+	private static ArrayList<String> preformBOQACalculations(ArrayList<String> hpoList){
+		Observations o = new Observations();
+		o.observations = new boolean[boqa.getOntology().getNumberOfTerms()];
+
+		//Add all hpo terms with ancestors to array of booleans
+		for (String hpo : hpoList)
+		{
+			Term t = boqa.getOntology().getTerm(hpo);
+			addTermAndAncestors(t,o);
+		}
+		//Get marginals
+		final BOQA.Result res = boqa.assignMarginals(o, false, 1);
+
+
+		//All of this is sorting diseases by marginals
+		Integer[] order = new Integer[res.size()];
+		for(int i=0; i < order.length; i++)
+	 	{
+			order[i] = i;
+		}
+
+		Arrays.sort(order, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                if (res.getMarginal(o1) < res.getMarginal(o2)) return 1;
+                if (res.getMarginal(o1) > res.getMarginal(o2)) return -1;
+                return 0;
+            }
+    });
+		//Get top 20 results
+		ArrayList<String> results = new ArrayList<String>();
+		for(int i = 0; i < 20; i++)
+		{
+			int id = order[i];
+			results.add(res.getMarginal(id) + "\t" + BOQABenchmark.omimMap.get(id));
+		}
+
+		return results;
 	}
 
 	/**
@@ -148,21 +209,46 @@ public class BOQABenchmark
 	 */
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
-		BOQA boqa = parseCommandLine(args);
+		parseCommandLine(args);
 
-		boqa.setPrecalculateJaccard(true);
+		boqa.setPrecalculateJaccard(false);
 
 		GlobalPreferences.setProxyPort(888);
 		GlobalPreferences.setProxyHost("realproxy.charite.de");
 
+		//Initialize boqa
 		Datafiles df = new Datafiles(ontologyPath,annotationPath);
 		boqa.setup(df.graph, df.assoc);
-		
-		Benchmark benchmark = new Benchmark();
-		benchmark.setSamplesPerItem(SAMPLES_PER_ITEM);
-		benchmark.setResultBaseName(RESULT_BASE_NAME);
-		benchmark.benchmark(boqa);
 
+		//Set up our index -> OMIM mapping by flipping the OMIM -> Index mapping in boqa
+		Set<Map.Entry<ByteString,Integer>> omimtonum = boqa.item2Index.entrySet();	
+		omimMap = new HashMap<Integer, ByteString>(omimtonum.size());
+		for(Map.Entry<ByteString, Integer> item : omimtonum)
+		{
+			omimMap.put(item.getValue(), item.getKey());
+		}
+	
+		//Read in hpo files
+		Charset utf8 = StandardCharsets.UTF_8;
+		File inFolder = new File(patientPath);
+		String[] files = inFolder.list();
+		Scanner s;
+		for(String f : files)
+		{
+			if(f.endsWith("_hpo.txt"))
+			{
+				s = new Scanner(new File(patientPath + File.separator + f));
+				String hpoTerms = s.nextLine();
+				//Get seperated terms
+				ArrayList<String> hpoTermList = BOQABenchmark.initializeHPOTermList(hpoTerms);
+				//Do actual calculations
+				ArrayList<String> data = BOQABenchmark.preformBOQACalculations(hpoTermList);
+				Files.write(Paths.get(outPath + File.separator + f + ".results"), data, utf8);
+			}
+		}
+
+		ArrayList<String> test = BOQABenchmark.initializeHPOTermList("HP:0000163,HP:0002015,HP:0006292,HP:0000234,HP:0000585,HP:0000276"); 
+		BOQABenchmark.preformBOQACalculations(test);
 		OntologizerThreadGroups.workerThreadGroup.interrupt();
 	}
 }

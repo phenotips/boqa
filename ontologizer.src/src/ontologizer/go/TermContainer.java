@@ -39,6 +39,10 @@ public class TermContainer implements Iterable<Term>
 		for (Term entry : terms)
 		{
 			termMap.put(entry.getID(), entry);
+			for(TermID alt : entry.getAlternatives())
+			{
+				termMap.put(alt, entry);
+			}
 			termList.add(entry);
 		}
 	}

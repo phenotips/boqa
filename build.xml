@@ -6,8 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="boqa">
     <property environment="env"/>
-    <property name="boqa.tests.location" value="../boqa.tests"/>
-    <property name="ECLIPSE_HOME" value="../../eclipse-3.6"/>
+    <property name="boqa.tests.location" value="./boqa.tests"/>
     <property name="workspace_loc" value="../"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -74,10 +73,6 @@
             <patternset includes="jdtCompilerAdapter.jar"/>
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
         </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
     </target>
     <target name="boqaBenchmark with Max 6">
         <java classname="sonumina.boqa.BOQABenchmark" failonerror="true" fork="yes">

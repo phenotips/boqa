@@ -60,8 +60,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -79,6 +77,8 @@ import ontologizer.go.Term;
 import ontologizer.go.TermID;
 import ontologizer.set.PopulationSet;
 import ontologizer.types.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonumina.algorithms.Algorithms;
 import sonumina.math.distribution.ApproximatedEmpiricalDistribution;
 import sonumina.math.graph.SlimDirectedGraphView;
@@ -103,7 +103,7 @@ import sonumina.math.graph.SlimDirectedGraphView;
 public class BOQA
 {
 	/** Our logger */
-	private static Logger logger = Logger.getLogger(BOQA.class.getCanonicalName());
+	private static Logger logger = LoggerFactory.getLogger(BOQA.class);
 
 	private Ontology graph;
 	private AssociationContainer assoc;
@@ -202,7 +202,7 @@ public class BOQA
 	/** Used to parse frequency information */
 	public static Pattern frequencyPattern = Pattern.compile("(\\d+)\\.?(\\d*)\\s*%");
 	public static Pattern frequencyFractionPattern = Pattern.compile("(\\d+)/(\\d+)");
-	
+
 	/* Settings for generation of random data */
 //	private final double ALPHA = 0.002; // 0.01
 	private double ALPHA = 0.002;
@@ -592,7 +592,7 @@ public class BOQA
 					else
 					{
 						/* NaN */
-						System.err.println("A child of a node is on although the parent is not: Impossible configuration encountered!");
+						logger.error("A child of a node is on although the parent is not: Impossible configuration encountered!");
 						return Configuration.NodeCase.FAULT;
 					}
 				}
@@ -611,7 +611,7 @@ public class BOQA
 					else
 					{
 						/* NaN */
-						System.err.println("A parent of a node is off although the child is not: Impossible configuration encountered!");
+						logger.error("A parent of a node is off although the child is not: Impossible configuration encountered!");
 						return Configuration.NodeCase.FAULT;
 					}
 				}
@@ -1293,7 +1293,7 @@ public class BOQA
 
 		if (micaMatrix != null)
 		{
-			System.err.println("setup() called a 2nd time.");
+			logger.error("setup() called a 2nd time.");
 			micaMatrix = null;
 		}
 
@@ -1429,7 +1429,7 @@ public class BOQA
 			},"nodesep=0.2; ranksep=0.1;" + preamble,false,false, null);
 		} catch (IllegalArgumentException ex)
 		{
-			System.err.println("Failed to write graphics due to: " + ex.getLocalizedMessage());
+			logger.error("Failed to write graphics due to: " + ex.getLocalizedMessage());
 		}
 	}
 
@@ -1597,7 +1597,7 @@ public class BOQA
 			}
 		}
 
-		if (logger.isLoggable(Level.INFO))
+		if (logger.isInfoEnabled())
 		{
 			logger.info(allItemsToBeConsidered.size() + " items shall be considered");
 			StringBuilder builder = new StringBuilder("Available evidences: ");
@@ -1612,7 +1612,7 @@ public class BOQA
 			for (String ev : evidenceCodes)
 				evidences.put(new ByteString(ev),1);
 
-			if (logger.isLoggable(Level.INFO))
+			if (logger.isInfoEnabled())
 			{
 				StringBuilder builder = new StringBuilder("Requested evidences: ");
 				for (ByteString ev : evidences.keySet())
@@ -1836,7 +1836,7 @@ public class BOQA
 
 			sum += diffOnTerms[i].length + diffOffTerms[i].length;
 		}
-		System.err.println(sum + " differences detected (" + (double)sum/allItemList.size() + " per item)");
+		logger.info(sum + " differences detected (" + (double)sum/allItemList.size() + " per item)");
 
 		diffOnTermsFreqs = new int[allItemList.size()][][];
 		diffOffTermsFreqs = new int[allItemList.size()][][];
@@ -1983,7 +1983,7 @@ public class BOQA
 				else if (freq.equalsIgnoreCase("common")) f = 0.75;
 				else if (freq.equalsIgnoreCase("hallmark")) f = 0.90;
 				else if (freq.equalsIgnoreCase("obligate")) f = 1;
-				else System.err.println("Unknown frequency identifier: " + freq);
+				else logger.info("Unknown frequency identifier: " + freq);
 			}
 		}
 		return f;

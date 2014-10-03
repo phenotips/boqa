@@ -1,7 +1,7 @@
 #
 # Primitive makefile
 #
-BOQABENCHMARK=java -Xmx16G -cp bin:jars/commons-cli-1.2.jar sonumina.boqa.BOQABenchmark
+BOQABENCHMARK=java -Xmx16G -cp bin:jars/commons-cli-1.2.jar:jars/slf4j-api-1.7.7.jar sonumina.boqa.BOQABenchmark
 SIZE_OF_SCORE_DISTRIBUTION=500000
 
 # Defines the directory where to place the results when
@@ -18,7 +18,7 @@ endif
 all: evaluate
 
 .PHONY: evaluate
-evaluate: benchmark evaluate-only 
+evaluate: benchmark evaluate-only
 
 .PHONY: evaluate-only
 evaluate-only:
@@ -35,7 +35,7 @@ benchmark: build
 	$(BOQABENCHMARK) --alpha 0.002 -r benchmark-normal-noise-s3 -o data/human-phenotype-ontology.obo.gz -a $(ANNOTATIONSFILE) -c -m 3 --sizeOfScoreDistribution $(SIZE_OF_SCORE_DISTRIBUTION)
 
 .PHONY: build
-build: 
+build:
 	ant clean
 	ant build
 
@@ -47,7 +47,7 @@ install:
 dist:
 	rm -Rf /tmp/boqa-dist
 	mkdir -p /tmp/boqa-dist/boqa /tmp/boqa-dist/boqa/boqa.tests
-	cp -Rp .classpath .project makefile build.xml README data src ontologizer.src jars /tmp/boqa-dist/boqa
-	cp -Rp ../boqa.tests /tmp/boqa-dist/
+	cp -Rp . /tmp/boqa-dist/boqa
+	cp -Rp boqa.tests /tmp/boqa-dist/
 	find /tmp/boqa-dist/  -depth  -type d  -path *.svn* -exec rm -Rf {} ';'
 	tar c -C /tmp boqa-dist  | bzip2 >boqa-dist.tar.gz

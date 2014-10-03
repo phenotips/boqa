@@ -22,6 +22,8 @@ import ontologizer.types.ByteString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonumina.boqa.InternalDatafiles;
 import sonumina.boqa.benchmark.Benchmark;
 import sonumina.boqa.calculation.BOQA;
@@ -33,7 +35,8 @@ import sonumina.math.graph.SlimDirectedGraphView;
 public class BOQATest
 {
 	private static Datafiles hpo;
-	
+	private Logger logger = LoggerFactory.getLogger(BOQATest.class);
+
 	@BeforeClass
 	public static void loadHPO() throws InterruptedException, IOException
 	{
@@ -514,22 +517,22 @@ public class BOQATest
 			}
 		}
 
-		System.err.println("Constructed data set");
+		logger.info("Constructed data set");
 		boqa.setConsiderFrequenciesOnly(false);
 		boqa.setPrecalculateScoreDistribution(false);
 		boqa.setCacheScoreDistribution(false);
 		boqa.setPrecalculateItemMaxs(false);
 		boqa.setup(ontology, assocs);
-		System.err.println("Setted up ontology and associations");
+		logger.info("Setted up ontology and associations");
 
 		Observations o = new Observations();
 		o.observations = new boolean[boqa.getOntology().getNumberOfTerms()];
 
 		long start = System.nanoTime();
-		System.err.println("Calculating");
+		logger.info("Calculating");
 		boqa.assignMarginals(o, false, 1);
 		long end = System.nanoTime();
 
-		System.err.println(((end - start)/1000/1000) + "ms");
+		logger.info(((end - start)/1000/1000) + "ms");
 	}
 }

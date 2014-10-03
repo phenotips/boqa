@@ -21,12 +21,16 @@ import ontologizer.types.ByteString;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonumina.boqa.calculation.BOQA;
 import sonumina.math.graph.SlimDirectedGraphView;
 import sonumina.math.graph.AbstractGraph.DotAttributesProvider;
 
 public class WordNetParserTest
 {
+	private Logger logger = LoggerFactory.getLogger(WordNetParserTest.class);
+	
 	/**
 	 * Download and unpack the word net stuff.
 	 * 
@@ -44,7 +48,7 @@ public class WordNetParserTest
 			Process p = Runtime.getRuntime().exec("wget http://wordnetcode.princeton.edu/3.0/WordNet-3.0.tar.bz2");
 			
 			while ((c = p.getErrorStream().read())!=-1)
-				System.err.write(c);
+				logger.error(String.valueOf(c));
 
 			if (p.waitFor() != 0)
 				throw new RuntimeException("Getting wordnet failed!");
@@ -56,7 +60,7 @@ public class WordNetParserTest
 			int c;
 			Process p = Runtime.getRuntime().exec("tar vxjf WordNet-3.0.tar.bz2");
 			while ((c = p.getErrorStream().read())!=-1)
-				System.err.write(c);
+				logger.error(String.valueOf(c));
 	
 			if (p.waitFor() != 0)
 				throw new RuntimeException("Extracting wordnet failed!");
@@ -114,10 +118,10 @@ public class WordNetParserTest
 			}
 		}
 
-		System.err.println("Constructed data set");
+		logger.info("Constructed data set");
 		final BOQA boqa = new BOQA();
 		boqa.setup(ontology, assocs);
-		System.err.println("Setted up ontology and associations");
+		logger.info("Setted up ontology and associations");
 		
 	}
 }

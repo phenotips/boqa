@@ -62,6 +62,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sonumina.boqa.calculation.BOQA;
 import sonumina.boqa.calculation.Observations;
 
@@ -79,6 +81,8 @@ public class BOQABenchmark
     static private BOQA boqa;
     static private HashMap<Integer,ByteString> omimMap = null;
 
+    static private Logger logger = LoggerFactory.getLogger(BOQABenchmark.class);
+
     /**
      * Parses the command line and returns a corresponding
      * BOQA object.
@@ -93,14 +97,6 @@ public class BOQABenchmark
 	opt.addOption("p", "patient", true, "Path to directory with patients");
 	opt.addOption("d", "out", true, "Path to output directory");
 	opt.addOption("h", "help", false, "Shows this help");
-
-	BOQA boqa = new BOQA();
-	boqa.setConsiderFrequenciesOnly(false);
-	boqa.setPrecalculateScoreDistribution(false);
-	boqa.setCacheScoreDistribution(false);
-	boqa.setPrecalculateItemMaxs(false);
-	boqa.setPrecalculateMaxICs(false);
-	boqa.setMaxFrequencyTerms(2);
 
 	try {
 	    GnuParser parser = new GnuParser();
@@ -120,11 +116,10 @@ public class BOQABenchmark
 	    outPath = cl.getOptionValue('d');
 
 	} catch (ParseException e) {
-	    System.err.println("Faield to parse commandline: " + e.getLocalizedMessage());
+	    logger.error("Failed to parse commandline: " + e.getLocalizedMessage());
 	    System.exit(1);
 	}
 
-	BOQABenchmark.boqa = boqa;
     }
 
     public static void addTermAndAncestors(Term t, Observations obsv) {
@@ -134,11 +129,11 @@ public class BOQABenchmark
 	    boqa.activateAncestors(id, obsv.observations);
 
 	} catch(NullPointerException e) {
-	    System.err.println(t);
+	    logger.warn(String.valueOf(t));
 
 	    for (Term p : boqa.getOntology().getTermParents(t)) {
-		System.err.println("Parent: " + p);
-		addTermAndAncestors(p, obsv);
+            logger.warn("Parent: " + p);
+            addTermAndAncestors(p, obsv);
 	    }
 	}
     }
@@ -152,9 +147,11 @@ public class BOQABenchmark
 	for (String a : A) {
 	    a = a.trim();
 
-	    if (! a.startsWith("HP:") || a.length() != 10) { /* A well formed HPO term starts with "HP:" and has ten characters. */
-		String e = String.format("Error: malformed HPO input string \"%s\". Could not parse term \"%s\"",hpoTermList,a);
-		System.err.println(e);
+	    /* A well formed HPO term starts with "HP:" and has ten characters. */
+	    if (! a.startsWith("HP:") || a.length() != 10) {
+		logger.warn(String.format(
+		"Error: malformed HPO input string \"%s\". Could not parse term \"%s\"", hpoTermList,a));
+
 	    }
 
 	    hpoList.add(a);
@@ -213,7 +210,17 @@ public class BOQABenchmark
     {
 	parseCommandLine(args);
 
+	BOQA boqa = new BOQA();
+	boqa.setConsiderFrequenciesOnly(false);
+	boqa.setPrecalculateScoreDistribution(false);
+	boqa.setCacheScoreDistribution(false);
+	boqa.setPrecalculateItemMaxs(false);
+	boqa.setPrecalculateMaxICs(false);
+	boqa.setMaxFrequencyTerms(2);
 	boqa.setPrecalculateJaccard(false);
+
+	BOQABenchmark.boqa = boqa;
+
 
 	GlobalPreferences.setProxyPort(888);
 	GlobalPreferences.setProxyHost("realproxy.charite.de");

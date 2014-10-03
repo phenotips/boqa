@@ -14,6 +14,7 @@
     <path id="boqa.classpath">
         <pathelement location="bin"/>
         <pathelement location="jars/commons-cli-1.2.jar"/>
+        <pathelement location="jars/slf4j-api-1.7.7.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -37,6 +38,7 @@
     </target>
     <target name="clean">
         <delete dir="bin"/>
+        <delete dir="target"/>
     </target>
     <target depends="clean" name="cleanall"/>
     <target depends="build-subprojects,build-project" name="build"/>
@@ -56,6 +58,11 @@
             <src path="src"/>
             <classpath refid="boqa.classpath"/>
         </javac>
+        <jar destfile="target/boqa.jar">
+            <fileset dir="bin" />
+            <fileset dir="data"/>
+            <zipfileset src="jars/commons-cli-1.2.jar"/>
+        </jar>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
         <ant antfile="build.xml" dir="${boqa.tests.location}" inheritAll="false" target="clean"/>

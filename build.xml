@@ -41,8 +41,7 @@
         <delete dir="target"/>
     </target>
     <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
+    <target depends="build-project" name="build"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
@@ -63,29 +62,5 @@
             <fileset dir="data"/>
             <zipfileset src="jars/commons-cli-1.2.jar"/>
         </jar>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${boqa.tests.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${boqa.tests.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-    </target>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target name="boqaBenchmark with Max 6">
-        <java classname="sonumina.boqa.BOQABenchmark" failonerror="true" fork="yes">
-            <jvmarg line="-Xmx1G"/>
-            <arg line="-o ${workspace_loc}/boqa/data/human-phenotype-ontology.obo.gz -a ${workspace_loc}/boqa/data/phenotype_annotation.omim.orphanet.gz -m 6 -c"/>
-            <classpath refid="boqa.classpath"/>
-        </java>
     </target>
 </project>

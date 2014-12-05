@@ -6,7 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="boqa">
     <property environment="env"/>
-    <property name="boqa.tests.location" value="./boqa.tests"/>
+    <property name="boqa.tests.location" value="./src/test/java/"/>
     <property name="workspace_loc" value="../"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -17,8 +17,8 @@
         <pathelement location="jars/slf4j-api-1.7.7.jar"/>
     </path>
     <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
+        <mkdir dir="target/classes"/>
+        <copy includeemptydirs="false" todir="target/classes">
             <fileset dir="ontologizer.src/src">
                 <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
@@ -29,11 +29,8 @@
                 <exclude name="ontologizer/benchmark/SingleTerm.java"/>
             </fileset>
         </copy>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
+        <copy includeemptydirs="false" todir="target/classes">
+            <fileset dir="src/main/resources/"/>
         </copy>
     </target>
     <target name="clean">
@@ -44,7 +41,7 @@
     <target depends="build-project" name="build"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" source="${source}" target="${target}">
             <src path="ontologizer.src/src"/>
             <exclude name="ontologizer/gui/swt/"/>
             <exclude name="ontologizer/calculation/svd/"/>
@@ -53,14 +50,15 @@
             <exclude name="ontologizer/benchmark/SingleTerm.java"/>
             <classpath refid="boqa.classpath"/>
         </javac>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
-            <src path="src"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" source="${source}" target="${target}">
+            <src path="src/main/java/"/>
             <classpath refid="boqa.classpath"/>
         </javac>
         <jar destfile="target/boqa.jar">
-            <fileset dir="bin" />
+            <fileset dir="target/classes" />
             <fileset dir="data"/>
             <zipfileset src="jars/commons-cli-1.2.jar"/>
+            <zipfileset src="jars/slf4j-api-1.7.7.jar"/>
         </jar>
     </target>
 </project>

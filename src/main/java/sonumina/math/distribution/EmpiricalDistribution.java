@@ -39,108 +39,122 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /**
- * A simple class representing an empirical probability
- * distribution.
- * 
- * @author Sebastian Bauer
+ * A simple class representing an empirical probability distribution.
  *
+ * @author Sebastian Bauer
  */
 public class EmpiricalDistribution implements IDistribution
 {
-	private double [] observations;
-	
-	/**  The cumulative counts */
-	private int [] cumCounts;
+    private double[] observations;
 
-	/**
-	 * Constructs an empirical distribution.
-	 * 
-	 * @param newObservations
-	 */
-	public EmpiricalDistribution(double [] newObservations)
-	{
-		observations = new double[newObservations.length];
-		for (int i=0;i<newObservations.length;i++)
-			observations[i] = newObservations[i];
-		Arrays.sort(observations);
-	}
+    /** The cumulative counts */
+    private int[] cumCounts;
 
-	/**
-	 * Constructs an empirical distribution.
-	 * 
-	 * @param newObservations
-	 * @param counts
-	 */
-	public EmpiricalDistribution(double [] newObservations, int [] counts)
-	{
-		if (newObservations.length != counts.length)
-			throw new IllegalArgumentException("Length of import vectors doesn't match");
+    /**
+     * Constructs an empirical distribution.
+     *
+     * @param newObservations
+     */
+    public EmpiricalDistribution(double[] newObservations)
+    {
+        this.observations = new double[newObservations.length];
+        for (int i = 0; i < newObservations.length; i++) {
+            this.observations[i] = newObservations[i];
+        }
+        Arrays.sort(this.observations);
+    }
 
-		class Item
-		{
-			public double obs;
-			public int idx;
-		};
-		
-		Item [] items = new Item[newObservations.length];
-		for (int i=0;i<newObservations.length;i++)
-		{
-			items[i] = new Item();
-			items[i].idx = i;
-			items[i].obs = newObservations[i];
-		}
-		Arrays.sort(items, new Comparator<Item>() {
-			public int compare(Item o1, Item o2)
-			{
-				if (o1.obs < o2.obs) return -1;
-				if (o1.obs == o2.obs) return 0;
-				return 1;
-			};
-		});
+    /**
+     * Constructs an empirical distribution.
+     *
+     * @param newObservations
+     * @param counts
+     */
+    public EmpiricalDistribution(double[] newObservations, int[] counts)
+    {
+        if (newObservations.length != counts.length) {
+            throw new IllegalArgumentException("Length of import vectors doesn't match");
+        }
 
-		cumCounts = new int[counts.length];
-		observations = new double[newObservations.length];
+        class Item
+        {
+            public double obs;
 
-		int totalCounts = 0;
+            public int idx;
+        }
+        ;
 
-		for (int i=0;i<items.length;i++)
-		{
-			observations[i] = items[i].obs;
-			totalCounts += counts[items[i].idx];
-			cumCounts[i] = totalCounts;
-		}
-	}
+        Item[] items = new Item[newObservations.length];
+        for (int i = 0; i < newObservations.length; i++)
+        {
+            items[i] = new Item();
+            items[i].idx = i;
+            items[i].obs = newObservations[i];
+        }
+        Arrays.sort(items, new Comparator<Item>()
+        {
+            @Override
+            public int compare(Item o1, Item o2)
+            {
+                if (o1.obs < o2.obs) {
+                    return -1;
+                }
+                if (o1.obs == o2.obs) {
+                    return 0;
+                }
+                return 1;
+            };
+        });
 
-	/**
-	 * Returns for x the value for the distribution function F(x) = P(X <= x).
-	 * 
-	 * @param observation
-	 * @param upperTail
-	 * @return
-	 */
-	public double cdf(double x, boolean upperTail)
-	{
-		int idx = Arrays.binarySearch(observations, x);
-		
-		if (cumCounts == null)
-		{
-			/* See doc to binarySearch */
-			if (idx < 0)
-				idx = - idx - 1;
+        this.cumCounts = new int[counts.length];
+        this.observations = new double[newObservations.length];
 
-			for (;idx<observations.length;idx++)
-				if (observations[idx] != x)
-					break;
-			return idx/(double)observations.length;
-		} else
-		{
-			if (idx < 0)
-			{
-				 /* We have to subtract one more as cumCounts[i] contains the cdf() for i
-				  * and i points to the next larger observation of x */
-				idx = - idx - 1 - 1;
-			}
-			return cumCounts[idx] / (double)cumCounts[cumCounts.length - 1];
-		}
-	}
+        int totalCounts = 0;
+
+        for (int i = 0; i < items.length; i++)
+        {
+            this.observations[i] = items[i].obs;
+            totalCounts += counts[items[i].idx];
+            this.cumCounts[i] = totalCounts;
+        }
+    }
+
+    /**
+     * Returns for x the value for the distribution function F(x) = P(X <= x).
+     *
+     * @param observation
+     * @param upperTail
+     * @return
+     */
+    @Override
+    public double cdf(double x, boolean upperTail)
+    {
+        int idx = Arrays.binarySearch(this.observations, x);
+
+        if (this.cumCounts == null)
+        {
+            /* See doc to binarySearch */
+            if (idx < 0) {
+                idx = -idx - 1;
+            }
+
+            for (; idx < this.observations.length; idx++) {
+                if (this.observations[idx] != x) {
+                    break;
+                }
+            }
+            return idx / (double) this.observations.length;
+        } else
+        {
+            if (idx < 0)
+            {
+                /*
+                 * We have to subtract one more as cumCounts[i] contains the cdf() for i and i points to the next larger
+                 * observation of x
+                 */
+                idx = -idx - 1 - 1;
+            }
+            return this.cumCounts[idx] / (double) this.cumCounts[this.cumCounts.length - 1];
+        }
+    }
 }

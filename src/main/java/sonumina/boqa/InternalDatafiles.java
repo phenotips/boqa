@@ -59,134 +59,146 @@ import sonumina.math.graph.Edge;
 
 /**
  * Class representing some internal data files.
- * 
+ *
  * @author Sebastian Bauer
  */
 public class InternalDatafiles extends Datafiles
 {
-	private DirectedGraph<String> graphWithItems;
+    private DirectedGraph<String> graphWithItems;
 
-	public InternalDatafiles() 
-	{
-		/* Go Graph */
-		HashSet<Term> terms = new HashSet<Term>();
-		Term c1 = new Term("GO:0000001", "C1");
-		Term c2 = new Term("GO:0000002", "C2", new ParentTermID(c1.getID(),TermRelation.IS_A));
-		Term c3 = new Term("GO:0000003", "C3", new ParentTermID(c1.getID(),TermRelation.IS_A));
-		Term c4 = new Term("GO:0000004", "C4", new ParentTermID(c2.getID(),TermRelation.IS_A));
-		Term c5 = new Term("GO:0000005", "C5", new ParentTermID(c2.getID(),TermRelation.IS_A));
-		Term c6 = new Term("GO:0000006", "C6", new ParentTermID(c3.getID(),TermRelation.IS_A),new ParentTermID(c2.getID(),TermRelation.IS_A));
-		Term c7 = new Term("GO:0000007", "C7", new ParentTermID(c5.getID(),TermRelation.IS_A),new ParentTermID(c6.getID(),TermRelation.IS_A));
-		Term c8 = new Term("GO:0000008", "C8", new ParentTermID(c7.getID(),TermRelation.IS_A));
-		Term c9 = new Term("GO:0000009", "C9", new ParentTermID(c7.getID(),TermRelation.IS_A));
-		Term c10 = new Term("GO:0000010", "C10", new ParentTermID(c9.getID(),TermRelation.IS_A));
-		Term c11 = new Term("GO:0000011", "C11", new ParentTermID(c9.getID(),TermRelation.IS_A));
-		Term c12 = new Term("GO:0000012", "C12", new ParentTermID(c8.getID(),TermRelation.IS_A));
-		Term c13 = new Term("GO:0000013", "C13", new ParentTermID(c8.getID(),TermRelation.IS_A));
-		Term c14 = new Term("GO:0000014", "C14", new ParentTermID(c4.getID(),TermRelation.IS_A));
-		Term c15 = new Term("GO:0000015", "C15", new ParentTermID(c4.getID(),TermRelation.IS_A));
-		
-		terms.add(c1);
-		terms.add(c2);
-		terms.add(c3);
-		terms.add(c4);
-		terms.add(c5);
-		terms.add(c6);
-		terms.add(c7);
-		terms.add(c8);
-		terms.add(c9);
-		terms.add(c10);
-		terms.add(c11);
-		terms.add(c12);
-		terms.add(c13);
-		terms.add(c14);
-		terms.add(c15);
-		TermContainer termContainer = new TermContainer(terms,"","");
+    public InternalDatafiles()
+    {
+        /* Go Graph */
+        HashSet<Term> terms = new HashSet<Term>();
+        Term c1 = new Term("GO:0000001", "C1");
+        Term c2 = new Term("GO:0000002", "C2", new ParentTermID(c1.getID(), TermRelation.IS_A));
+        Term c3 = new Term("GO:0000003", "C3", new ParentTermID(c1.getID(), TermRelation.IS_A));
+        Term c4 = new Term("GO:0000004", "C4", new ParentTermID(c2.getID(), TermRelation.IS_A));
+        Term c5 = new Term("GO:0000005", "C5", new ParentTermID(c2.getID(), TermRelation.IS_A));
+        Term c6 =
+            new Term("GO:0000006", "C6", new ParentTermID(c3.getID(), TermRelation.IS_A), new ParentTermID(c2.getID(),
+                TermRelation.IS_A));
+        Term c7 =
+            new Term("GO:0000007", "C7", new ParentTermID(c5.getID(), TermRelation.IS_A), new ParentTermID(c6.getID(),
+                TermRelation.IS_A));
+        Term c8 = new Term("GO:0000008", "C8", new ParentTermID(c7.getID(), TermRelation.IS_A));
+        Term c9 = new Term("GO:0000009", "C9", new ParentTermID(c7.getID(), TermRelation.IS_A));
+        Term c10 = new Term("GO:0000010", "C10", new ParentTermID(c9.getID(), TermRelation.IS_A));
+        Term c11 = new Term("GO:0000011", "C11", new ParentTermID(c9.getID(), TermRelation.IS_A));
+        Term c12 = new Term("GO:0000012", "C12", new ParentTermID(c8.getID(), TermRelation.IS_A));
+        Term c13 = new Term("GO:0000013", "C13", new ParentTermID(c8.getID(), TermRelation.IS_A));
+        Term c14 = new Term("GO:0000014", "C14", new ParentTermID(c4.getID(), TermRelation.IS_A));
+        Term c15 = new Term("GO:0000015", "C15", new ParentTermID(c4.getID(), TermRelation.IS_A));
 
-		graph = new Ontology(termContainer);
+        terms.add(c1);
+        terms.add(c2);
+        terms.add(c3);
+        terms.add(c4);
+        terms.add(c5);
+        terms.add(c6);
+        terms.add(c7);
+        terms.add(c8);
+        terms.add(c9);
+        terms.add(c10);
+        terms.add(c11);
+        terms.add(c12);
+        terms.add(c13);
+        terms.add(c14);
+        terms.add(c15);
+        TermContainer termContainer = new TermContainer(terms, "", "");
 
-		HashSet<TermID> tids = new HashSet<TermID>();
-		for (Term term : terms)
-			tids.add(term.getID());
+        this.graph = new Ontology(termContainer);
 
-		/* Associations */
-		assoc = new AssociationContainer();
+        HashSet<TermID> tids = new HashSet<TermID>();
+        for (Term term : terms) {
+            tids.add(term.getID());
+        }
 
-		assoc.addAssociation(new Association(new ByteString("item1"),4));
-		assoc.addAssociation(new Association(new ByteString("item1"),11));
+        /* Associations */
+        this.assoc = new AssociationContainer();
 
-		assoc.addAssociation(new Association(new ByteString("item2"),10));
-		assoc.addAssociation(new Association(new ByteString("item2"),13));
+        this.assoc.addAssociation(new Association(new ByteString("item1"), 4));
+        this.assoc.addAssociation(new Association(new ByteString("item1"), 11));
 
-		assoc.addAssociation(new Association(new ByteString("item3"),7));
-		assoc.addAssociation(new Association(new ByteString("item3"),15));
+        this.assoc.addAssociation(new Association(new ByteString("item2"), 10));
+        this.assoc.addAssociation(new Association(new ByteString("item2"), 13));
 
-		assoc.addAssociation(new Association(new ByteString("item4"),12));
-		assoc.addAssociation(new Association(new ByteString("item4"),13));
-		assoc.addAssociation(new Association(new ByteString("item4"),14));
+        this.assoc.addAssociation(new Association(new ByteString("item3"), 7));
+        this.assoc.addAssociation(new Association(new ByteString("item3"), 15));
 
-		assoc.addAssociation(new Association(new ByteString("item5"),6));
-		assoc.addAssociation(new Association(new ByteString("item5"),14));
+        this.assoc.addAssociation(new Association(new ByteString("item4"), 12));
+        this.assoc.addAssociation(new Association(new ByteString("item4"), 13));
+        this.assoc.addAssociation(new Association(new ByteString("item4"), 14));
 
-		GODOTWriter.writeDOT(graph, new File("example.dot"), null, tids, new AbstractDotAttributesProvider() {
-			public String getDotNodeAttributes(TermID id) {
+        this.assoc.addAssociation(new Association(new ByteString("item5"), 6));
+        this.assoc.addAssociation(new Association(new ByteString("item5"), 14));
 
-				return "label=\""+graph.getTerm(id).getName()+"\"";
-			}
-		});
+        GODOTWriter.writeDOT(this.graph, new File("example.dot"), null, tids, new AbstractDotAttributesProvider()
+        {
+            @Override
+            public String getDotNodeAttributes(TermID id)
+            {
 
-		graphWithItems = new DirectedGraph<String>();
-		for (Term term : terms)
-			graphWithItems.addVertex(term.getName());
+                return "label=\"" + InternalDatafiles.this.graph.getTerm(id).getName() + "\"";
+            }
+        });
 
-		for (Term term : terms)
-		{
-			for (ParentTermID pid : term.getParents())
-			{
-				graphWithItems.addEdge(new Edge<String>(graph.getTerm(pid.termid).getName(),term.getName()));
-			}
-		}
-		
-		graphWithItems.addVertex("item1");
-		graphWithItems.addVertex("item2");
-		graphWithItems.addVertex("item3");
-		graphWithItems.addVertex("item4");
-		graphWithItems.addVertex("item5");
+        this.graphWithItems = new DirectedGraph<String>();
+        for (Term term : terms) {
+            this.graphWithItems.addVertex(term.getName());
+        }
 
-		for (Gene2Associations g2a : assoc)
-			for (TermID tid : g2a.getAssociations())
-				graphWithItems.addEdge(new Edge<String>(graph.getTerm(tid).getName(),g2a.name().toString()));
+        for (Term term : terms)
+        {
+            for (ParentTermID pid : term.getParents())
+            {
+                this.graphWithItems.addEdge(new Edge<String>(this.graph.getTerm(pid.termid).getName(), term.getName()));
+            }
+        }
 
-		try {
-			graphWithItems.writeDOT(new FileOutputStream("full.dot"), new DotAttributesProvider<String>()
-					{
-						@Override
-						public String getDotNodeAttributes(String vt)
-						{
-							if (vt.startsWith("C"))
-								return "label=\""+vt+"\"";
-							else
-								return "shape=\"box\",label=\""+vt+"\"";
-						}
-						
-						@Override
-						public String getDotEdgeAttributes(String src, String dest)
-						{
-							return "dir=\"back\"";
-						}
-					});
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Returns the graph together with items
-	 */
-	public DirectedGraph<String> getGraphWithItems()
-	{
-		return graphWithItems;
-	}
+        this.graphWithItems.addVertex("item1");
+        this.graphWithItems.addVertex("item2");
+        this.graphWithItems.addVertex("item3");
+        this.graphWithItems.addVertex("item4");
+        this.graphWithItems.addVertex("item5");
+
+        for (Gene2Associations g2a : this.assoc) {
+            for (TermID tid : g2a.getAssociations()) {
+                this.graphWithItems.addEdge(new Edge<String>(this.graph.getTerm(tid).getName(), g2a.name().toString()));
+            }
+        }
+
+        try {
+            this.graphWithItems.writeDOT(new FileOutputStream("full.dot"), new DotAttributesProvider<String>()
+            {
+                @Override
+                public String getDotNodeAttributes(String vt)
+                {
+                    if (vt.startsWith("C")) {
+                        return "label=\"" + vt + "\"";
+                    } else {
+                        return "shape=\"box\",label=\"" + vt + "\"";
+                    }
+                }
+
+                @Override
+                public String getDotEdgeAttributes(String src, String dest)
+                {
+                    return "dir=\"back\"";
+                }
+            });
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Returns the graph together with items
+     */
+    public DirectedGraph<String> getGraphWithItems()
+    {
+        return this.graphWithItems;
+    }
 
 }

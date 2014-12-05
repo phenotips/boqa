@@ -1,8 +1,10 @@
 package sonumina.boqa.tests;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -38,10 +40,11 @@ public class BOQATest
     private Logger logger = LoggerFactory.getLogger(BOQATest.class);
 
     @BeforeClass
-    public static void loadHPO() throws InterruptedException, IOException
+    public static void loadHPO() throws InterruptedException, IOException, URISyntaxException
     {
-        hpo =
-            new Datafiles("../boqa/data/human-phenotype-ontology.obo.gz", "../boqa/data/phenotype_annotation.omim.gz");
+        hpo = new Datafiles(
+            new File(ClassLoader.getSystemResource("human-phenotype-ontology.obo.gz").toURI()).getCanonicalPath(),
+            new File(ClassLoader.getSystemResource("phenotype_annotation.omim.gz").toURI()).getCanonicalPath());
     }
 
     /**
@@ -524,13 +527,14 @@ public class BOQATest
     }
 
     @Test
-    public void testLargeNumberOfItems() throws IOException, OBOParserException
+    public void testLargeNumberOfItems() throws IOException, OBOParserException, URISyntaxException
     {
         Random rnd = new Random(2);
 
         final BOQA boqa = new BOQA();
 
-        OBOParser hpoParser = new OBOParser("../boqa/data/human-phenotype-ontology.obo.gz");
+        OBOParser hpoParser = new OBOParser(
+            new File(ClassLoader.getSystemResource("human-phenotype-ontology.obo.gz").toURI()).getCanonicalPath());
         hpoParser.doParse();
         TermContainer tc = new TermContainer(hpoParser.getTermMap(), hpoParser.getFormatVersion(), hpoParser.getDate());
         Ontology ontology = new Ontology(tc);

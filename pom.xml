@@ -28,6 +28,11 @@
   <version>1.0-SNAPSHOT</version>
   <name>BOQA</name>
 
+  <properties>
+    <!-- Increase allocated memory while running tests -->
+    <argLine>-Xmx2g</argLine>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>commons-cli</groupId>

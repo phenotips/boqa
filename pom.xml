@@ -27,6 +27,46 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <repositories>
+    <repository>
+      <id>phenotips-releases</id>
+      <name>PhenoTips Releases repository</name>
+      <url>https://nexus.phenotips.org/nexus/content/repositories/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>phenotips-snapshots</id>
+      <name>PhenoTips Snapshots repository</name>
+      <url>https://nexus.phenotips.org/nexus/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>phenotips-externals</id>
+      <name>PhenoTips external repositories mirror</name>
+      <url>https://nexus.phenotips.org/nexus/content/groups/public/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <properties>
     <!-- Increase allocated memory while running tests -->
     <argLine>-Xmx2g</argLine>

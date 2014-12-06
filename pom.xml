@@ -28,6 +28,26 @@
   <version>1.0-SNAPSHOT</version>
   <name>BOQA</name>
 
+  <scm>
+    <connection>scm:git:git://github.com/phenotips/boqa.git</connection>
+    <developerConnection>scm:git:git@github.com:phenotips/boqa.git</developerConnection>
+    <url>https://github.com/phenotips/boqa.git/tree/master/</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>nexus.phenotips.org</id>
+      <name>Maven2 Remote Repository for Releases</name>
+      <url>https://nexus.phenotips.org/nexus/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>nexus.phenotips.org</id>
+      <name>Maven2 Development Repository for Snapshots</name>
+      <url>https://nexus.phenotips.org/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <properties>
     <!-- Increase allocated memory while running tests -->
     <argLine>-Xmx2g</argLine>

@@ -86,12 +86,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ontologizer-core</artifactId>
-      <version>2.1.1</version>
+      <version>2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ontologizer-benchmark</artifactId>
-      <version>2.1.1</version>
+      <version>2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

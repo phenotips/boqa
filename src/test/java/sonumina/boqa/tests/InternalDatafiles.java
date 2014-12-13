@@ -33,7 +33,7 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package sonumina.boqa;
+package sonumina.boqa.tests;
 
 import java.io.File;
 import java.io.FileNotFoundException;

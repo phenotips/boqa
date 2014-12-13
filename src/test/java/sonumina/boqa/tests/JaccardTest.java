@@ -3,7 +3,6 @@ package sonumina.boqa.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import sonumina.boqa.InternalDatafiles;
 import sonumina.boqa.calculation.BOQA;
 
 public class JaccardTest

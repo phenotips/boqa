@@ -4,7 +4,7 @@
 
   <groupId>de.charite.compbio</groupId>
   <artifactId>boqa</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.2</version>
   <name>BOQA</name>
 
   <prerequisites>

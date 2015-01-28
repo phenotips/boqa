@@ -47,4 +47,14 @@ public class Observations
     public boolean[] observations;
 
     public Configuration observationStats;
+
+    public boolean isEmpty()
+    {
+        for (boolean observation : this.observations) {
+            if (observation) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -2469,10 +2469,12 @@ public class BOQA
                 if ((BOQA.this.CACHE_SCORE_DISTRIBUTION || BOQA.this.PRECALCULATE_SCORE_DISTRIBUTION)
                     && BOQA.this.TRY_LOADING_SCORE_DISTRIBUTION)
                 {
+                    InputStream underlyingStream = null;
+                    ObjectInputStream ois = null;
                     try {
                         File inFile = new File(scoreDistributionsName);
-                        InputStream underlyingStream = new GZIPInputStream(new FileInputStream(inFile));
-                        ObjectInputStream ois = new ObjectInputStream(underlyingStream);
+                        underlyingStream = new GZIPInputStream(new FileInputStream(inFile));
+                        ois = new ObjectInputStream(underlyingStream);
 
                         int fingerprint = ois.readInt();
                         if (fingerprint == fingerprint())
@@ -2486,6 +2488,17 @@ public class BOQA
                         e.printStackTrace();
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            if (ois != null) {
+                                ois.close();
+                            }
+                            if (underlyingStream != null) {
+                                underlyingStream.close();
+                            }
+                        } catch (Exception ex) {
+                            // Nothing important
+                        }
                     }
                 }
 

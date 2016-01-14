@@ -517,48 +517,6 @@ public class BOQA
     }
 
     /**
-     * Samples from the LPD of the node
-     *
-     * @param rnd
-     * @param node
-     * @param hidden
-     * @param observed
-     * @return
-     */
-    private boolean observeNode(Random rnd, int node, boolean[] hidden, boolean[] observed)
-    {
-        if (areFalsePositivesPropagated())
-        {
-            /* Here, we consider that false positives will be inherited */
-            for (int i = 0; i < this.term2Children[node].length; i++)
-            {
-                int chld = this.term2Children[node][i];
-                if (observed[chld]) {
-                    return true;
-                }
-            }
-        }
-
-        if (areFalseNegativesPropagated())
-        {
-            /* Here, we consider that false negatives will be inherited */
-            for (int i = 0; i < this.term2Parents[node].length; i++)
-            {
-                int parent = this.term2Parents[node][i];
-                if (!observed[parent]) {
-                    return false;
-                }
-            }
-        }
-
-        if (hidden[node]) {
-            return rnd.nextDouble() > this.BETA; /* false negative */
-        } else {
-            return rnd.nextDouble() < this.ALPHA; /* false positive */
-        }
-    }
-
-    /**
      * Returns the case for the given node, given the hidden and observed states.
      *
      * @param node
@@ -688,28 +646,71 @@ public class BOQA
 
         WeightedConfigurationList statsList = new WeightedConfigurationList();
 
-        if (true)
+        boolean[] hidden;
+        Configuration stats;
+
+        if (previousHidden == null) {
+            hidden = new boolean[numTerms];
+        } else {
+            hidden = previousHidden;
+        }
+
+        if (previousStats == null) {
+            stats = new Configuration();
+        } else {
+            stats = previousStats;
+        }
+
+        if (!takeFrequenciesIntoAccount)
         {
-            boolean[] hidden;
-            Configuration stats;
+            /* New */
+            int[] diffOn = this.diffOnTerms[item];
+            int[] diffOff = this.diffOffTerms[item];
 
-            if (previousHidden == null) {
-                hidden = new boolean[numTerms];
-            } else {
-                hidden = previousHidden;
+            /* Decrement config stats of the nodes we are going to change */
+            for (int element : diffOn) {
+                stats.decrement(getNodeCase(element, hidden, observed));
+            }
+            for (int element : diffOff) {
+                stats.decrement(getNodeCase(element, hidden, observed));
             }
 
-            if (previousStats == null) {
-                stats = new Configuration();
-            } else {
-                stats = previousStats;
+            /* Change nodes states */
+            for (int i = 0; i < diffOn.length; i++) {
+                hidden[diffOn[i]] = true;
+            }
+            for (int i = 0; i < diffOff.length; i++) {
+                hidden[diffOff[i]] = false;
             }
 
-            if (!takeFrequenciesIntoAccount)
+            /* Increment config states of nodes that we have just changed */
+            for (int element : diffOn) {
+                stats.increment(getNodeCase(element, hidden, observed));
+            }
+            for (int element : diffOff) {
+                stats.increment(getNodeCase(element, hidden, observed));
+            }
+
+                statsList.add(stats.clone(), 0);
+        } else
+        {
+            /* Initialize stats */
+            if (previousHidden != null)
             {
-                /* New */
-                int[] diffOn = this.diffOnTerms[item];
-                int[] diffOff = this.diffOffTerms[item];
+                for (int i = 0; i < hidden.length; i++) {
+                    hidden[i] = false;
+                }
+            }
+            stats.clear();
+            determineCases(observed, hidden, stats);
+
+            /*
+             * Loop over all tracked configurations that may appear due to the given item being active
+             */
+            for (int c = 0; c < this.diffOnTermsFreqs[item].length; c++)
+            {
+                int[] diffOn = this.diffOnTermsFreqs[item][c];
+                int[] diffOff = this.diffOffTermsFreqs[item][c];
 
                 /* Decrement config stats of the nodes we are going to change */
                 for (int element : diffOn) {
@@ -735,137 +736,8 @@ public class BOQA
                     stats.increment(getNodeCase(element, hidden, observed));
                 }
 
-                /* Old TODO: Move this into a test */
-                if (false)
-                {
-                    boolean[] oldHidden = new boolean[numTerms];
-                    Configuration oldStats = new Configuration();
-                    for (int h : this.items2DirectTerms[item])
-                    {
-                        oldHidden[h] = true;
-                        activateAncestors(h, oldHidden);
-                    }
-                    determineCases(observed, oldHidden, oldStats);
-                    if (!oldStats.equals(stats)) {
-                        throw new RuntimeException("States don't match");
-                    }
-                    statsList.add(oldStats, 0);
-                } else
-                {
-                    statsList.add(stats.clone(), 0);
-                }
-            } else
-            {
-                /* Initialize stats */
-                if (previousHidden != null)
-                {
-                    for (int i = 0; i < hidden.length; i++) {
-                        hidden[i] = false;
-                    }
-                }
-                stats.clear();
-                determineCases(observed, hidden, stats);
-
-                /*
-                 * Loop over all tracked configurations that may appear due to the given item being active
-                 */
-                for (int c = 0; c < this.diffOnTermsFreqs[item].length; c++)
-                {
-                    int[] diffOn = this.diffOnTermsFreqs[item][c];
-                    int[] diffOff = this.diffOffTermsFreqs[item][c];
-
-                    /* Decrement config stats of the nodes we are going to change */
-                    for (int element : diffOn) {
-                        stats.decrement(getNodeCase(element, hidden, observed));
-                    }
-                    for (int element : diffOff) {
-                        stats.decrement(getNodeCase(element, hidden, observed));
-                    }
-
-                    /* Change nodes states */
-                    for (int i = 0; i < diffOn.length; i++) {
-                        hidden[diffOn[i]] = true;
-                    }
-                    for (int i = 0; i < diffOff.length; i++) {
-                        hidden[diffOff[i]] = false;
-                    }
-
-                    /* Increment config states of nodes that we have just changed */
-                    for (int element : diffOn) {
-                        stats.increment(getNodeCase(element, hidden, observed));
-                    }
-                    for (int element : diffOff) {
-                        stats.increment(getNodeCase(element, hidden, observed));
-                    }
-
-                    /* Determine cases and store */
-                    statsList.add(stats.clone(), this.factors[item][c]);
-                }
-            }
-        } else
-        {
-            /* TODO: Move this into a test */
-            int numTermsWithExplicitFrequencies = 0;
-            if (takeFrequenciesIntoAccount)
-            {
-                /*
-                 * Determine the number of terms that have non-1.0 frequency. We restrict them to the top 6 (the less
-                 * probable) due to complexity issues and hope that this a good enough approximation.
-                 */
-                for (int i = 0; i < numAnnotatedTerms && i < 6; i++)
-                {
-                    if (this.items2TermFrequencies[item][this.item2TermFrequenciesOrder[item][i]] >= 1.0) {
-                        break;
-                    }
-                    numTermsWithExplicitFrequencies++;
-                }
-            }
-
-            /* We try each possible activity/inactivity combination of terms with explicit frequencies */
-            SubsetGenerator sg = new SubsetGenerator(numTermsWithExplicitFrequencies, numTermsWithExplicitFrequencies);// numTermsWithExplicitFrequencies);
-            SubsetGenerator.Subset s;
-
-            while ((s = sg.next()) != null)
-            {
-                double factor = 0.0;
-                boolean[] hidden = new boolean[this.slimGraph.getNumberOfVertices()];
-                boolean[] taken = new boolean[numTermsWithExplicitFrequencies];
-
-                /* first, activate variable terms according to the current selection */
-                for (int i = 0; i < s.r; i++)
-                {
-                    int ti = this.item2TermFrequenciesOrder[item][s.j[i]]; /*
-                     * index of term within the all directly
-                     * associated indices
-                     */
-                    int h = this.items2DirectTerms[item][ti]; /* global index of term */
-                    hidden[h] = true;
-                    activateAncestors(h, hidden);
-                    factor += Math.log(this.items2TermFrequencies[item][ti]);
-                    taken[s.j[i]] = true;
-                }
-
-                for (int i = 0; i < numTermsWithExplicitFrequencies; i++)
-                {
-                    if (!taken[i]) {
-                        factor +=
-                            Math.log(1 - this.items2TermFrequencies[item][this.item2TermFrequenciesOrder[item][i]]);
-                    }
-                }
-
-                /* second, activate mandatory terms */
-                for (int i = numTermsWithExplicitFrequencies; i < numAnnotatedTerms; i++)
-                {
-                    int ti = this.item2TermFrequenciesOrder[item][i];
-                    int h = this.items2DirectTerms[item][ti]; /* global index of term */
-                    hidden[h] = true;
-                    activateAncestors(h, hidden);
-                }
-
                 /* Determine cases and store */
-                Configuration stats = new Configuration();
-                determineCases(observed, hidden, stats);
-                statsList.add(stats, factor);
+                statsList.add(stats.clone(), this.factors[item][c]);
             }
         }
 
@@ -1304,35 +1176,6 @@ public class BOQA
         for (int j = 0; j < this.term2Descendants[i].length; j++) {
             observations[this.term2Descendants[i][j]] = false;
         }
-    }
-
-    /**
-     * Extracts all items that have at least a single annotation with a frequency.
-     *
-     * @return
-     */
-    private Set<ByteString> extractItemsWithFrequencies()
-    {
-        HashSet<ByteString> items = new HashSet<ByteString>();
-
-        for (ByteString item : this.assoc.getAllAnnotatedGenes())
-        {
-            boolean take = false;
-
-            Gene2Associations item2Associations = this.assoc.get(item);
-            for (Association a : item2Associations)
-            {
-                if (a.getAspect().length() != 0) {
-                    take = true;
-                }
-            }
-
-            if (take) {
-                items.add(item);
-            }
-        }
-
-        return items;
     }
 
     /**
@@ -2012,7 +1855,6 @@ public class BOQA
             {
                 boolean[] hidden = new boolean[this.slimGraph.getNumberOfVertices()];
                 boolean[] taken = new boolean[numTermsWithExplicitFrequencies];
-                int numTermsChoosen = 0;
 
                 double factor = 0.0;
 
@@ -2934,40 +2776,6 @@ public class BOQA
     public double jcScoreMaxAvgVsItem(int[] tl1, int item)
     {
         return scoreMaxAvgVsItem(tl1, item, this.jcTermSim);
-    }
-
-    /**
-     * Sim score avg using two lists of terms.
-     *
-     * @param t1
-     * @param t2
-     * @return
-     */
-    private double simScoreAvg(int[] t1, int[] t2)
-    {
-        double score = 0;
-        for (int to : t1)
-        {
-            for (int ti : t2)
-            {
-                int common = commonAncestorWithMaxIC(to, ti);
-                score += this.terms2IC[common];
-            }
-        }
-        score /= t1.length * t2.length;
-        return score;
-    }
-
-    /**
-     * Score two list of terms.
-     *
-     * @param t1
-     * @param t2
-     * @return
-     */
-    private double simScore(int[] t1, int[] t2)
-    {
-        return resScoreMaxAvg(t1, t2);
     }
 
     /**

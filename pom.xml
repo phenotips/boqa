@@ -166,9 +166,9 @@
           <!-- Lock down plugin version for build reproducibility -->
           <version>3.2</version>
           <configuration>
-            <!-- Java 1.6 is required -->
-            <source>1.6</source>
-            <target>1.6</target>
+            <!-- Java 1.7 is required -->
+            <source>1.7</source>
+            <target>1.7</target>
             <!-- Show compiler warnings -->
             <compilerArgument>-Xlint:all</compilerArgument>
             <showWarnings>true</showWarnings>

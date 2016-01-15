@@ -2570,12 +2570,8 @@ public class BOQA
                             underlyingStream.close();
 
                             logger.info("Score distribution written to \"" + outFile.getAbsolutePath() + "\"");
-                        } catch (FileNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            logger.warn("Failed to write score distribution: {}", e.getMessage(), e);
                         }
                     }
                 }

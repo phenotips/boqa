@@ -1312,20 +1312,20 @@ public class BOQA
             shuffledTerms[item] = item;
         }
 
-        FileWriter out = new FileWriter(f);
+        try (FileWriter out = new FileWriter(f)) {
 
-        Random rnd = new Random();
+            Random rnd = new Random();
 
-        for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
-            int q = 10;
-            int[] randomizedTerms = new int[q];
+            for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
+                int q = 10;
+                int[] randomizedTerms = new int[q];
 
-            chooseTerms(rnd, q, randomizedTerms, shuffledTerms);
-            double randomScore = resScoreVsItem(randomizedTerms, item);
-            out.write(randomScore + " \n");
+                chooseTerms(rnd, q, randomizedTerms, shuffledTerms);
+                double randomScore = resScoreVsItem(randomizedTerms, item);
+                out.write(randomScore + " \n");
+            }
+            out.flush();
         }
-        out.flush();
-        out.close();
 
         logger.info("Score distribution for item {} with {} annotations written",
             this.allItemList.get(item), this.items2DirectTerms[item].length);
@@ -2337,12 +2337,9 @@ public class BOQA
 
                 if ((BOQA.this.CACHE_SCORE_DISTRIBUTION || BOQA.this.PRECALCULATE_SCORE_DISTRIBUTION)
                     && BOQA.this.TRY_LOADING_SCORE_DISTRIBUTION) {
-                    InputStream underlyingStream = null;
-                    ObjectInputStream ois = null;
-                    try {
-                        File inFile = new File(scoreDistributionsName);
-                        underlyingStream = new GZIPInputStream(new FileInputStream(inFile));
-                        ois = new ObjectInputStream(underlyingStream);
+                    File inFile = new File(scoreDistributionsName);
+                    try (InputStream underlyingStream = new GZIPInputStream(new FileInputStream(inFile));
+                        ObjectInputStream ois = new ObjectInputStream(underlyingStream)) {
 
                         int fingerprint = ois.readInt();
                         if (fingerprint == fingerprint()) {
@@ -2355,17 +2352,6 @@ public class BOQA
                         e.printStackTrace();
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
-                    } finally {
-                        try {
-                            if (ois != null) {
-                                ois.close();
-                            }
-                            if (underlyingStream != null) {
-                                underlyingStream.close();
-                            }
-                        } catch (Exception ex) {
-                            // Nothing important
-                        }
                     }
                 }
 
@@ -2438,11 +2424,9 @@ public class BOQA
                     logger.info("Score distribution has been precalculated");
 
                     if (BOQA.this.STORE_SCORE_DISTRIBUTION && !distributionLoaded) {
-                        try {
-                            File outFile = new File(scoreDistributionsName);
-                            OutputStream underlyingStream = new GZIPOutputStream(new FileOutputStream(outFile));
-                            ObjectOutputStream oos = new ObjectOutputStream(underlyingStream);
-
+                        File outFile = new File(scoreDistributionsName);
+                        try (OutputStream underlyingStream = new GZIPOutputStream(new FileOutputStream(outFile));
+                            ObjectOutputStream oos = new ObjectOutputStream(underlyingStream)) {
                             /*
                              * The fingerprint shall ensure that the score distribution and ontology/associations are
                              * compatible
@@ -2451,7 +2435,6 @@ public class BOQA
 
                             /* Finally, Write store distribution */
                             oos.writeObject(this.scoreDistributions);
-                            underlyingStream.close();
 
                             logger.info("Score distribution written to \"{}\"", outFile.getAbsolutePath());
                         } catch (IOException e) {

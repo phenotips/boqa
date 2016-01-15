@@ -913,7 +913,7 @@ public class BOQA
 
             if (CONSIDER_ONLY_DIRECT_ASSOCIATIONS)
             {
-                logger.debug("Item " + item + " has " + this.items2DirectTerms[item].length + " annotations");
+                logger.debug("Item {} has {} annotations", item, this.items2DirectTerms[item].length);
                 for (i = 0; i < this.items2DirectTerms[item].length; i++)
                 {
                     boolean state = true;
@@ -1084,9 +1084,9 @@ public class BOQA
                 }
             }
 
-            logger.debug("Number of observed positives:" + numPositive);
-            logger.debug("Raw number of false positives: " + numFalsePositive);
-            logger.debug("Raw number of false negatives " + numFalseNegative);
+            logger.debug("Number of observed positives: {}", numPositive);
+            logger.debug("Raw number of false positives: {}", numFalsePositive);
+            logger.debug("Raw number of false negatives {}", numFalseNegative);
 
             if (numPositive == 0 && !this.ALLOW_EMPTY_OBSERVATIONS)
             {
@@ -1100,12 +1100,10 @@ public class BOQA
 
             if (logger.isDebugEnabled())
             {
-                logger.debug("Number of modelled false postives "
-                    + stats.getCases(Configuration.NodeCase.FALSE_POSITIVE) + " (alpha=" + stats.falsePositiveRate()
-                    + "%)");
-                logger.debug("Number of modelled false negatives "
-                    + stats.getCases(Configuration.NodeCase.FALSE_NEGATIVE) + " (beta=" + stats.falseNegativeRate()
-                    + "%)");
+                logger.debug("Number of modelled false postives {} (alpha={}%)",
+                    stats.getCases(Configuration.NodeCase.FALSE_POSITIVE), stats.falsePositiveRate());
+                logger.debug("Number of modelled false negatives {}  (beta={}%)",
+                    stats.getCases(Configuration.NodeCase.FALSE_NEGATIVE),  stats.falseNegativeRate());
             }
 
             o = new Observations();
@@ -1349,7 +1347,7 @@ public class BOQA
                 }, "nodesep=0.2; ranksep=0.1;" + preamble, false, false, null);
         } catch (IllegalArgumentException ex)
         {
-            logger.error("Failed to write graphics due to: " + ex.getLocalizedMessage());
+            logger.error("Failed to write graphics due to: {}", ex.getLocalizedMessage());
         }
     }
 
@@ -1383,9 +1381,8 @@ public class BOQA
         out.flush();
         out.close();
 
-        logger.info("Score distribution for item " + this.allItemList.get(item) + " with "
-            + this.items2DirectTerms[item].length
-            + " annotations written");
+        logger.info("Score distribution for item {} with {} annotations written",
+            this.allItemList.get(item), this.items2DirectTerms[item].length);
     }
 
     /**
@@ -1956,7 +1953,7 @@ public class BOQA
                 } else if (freq.equalsIgnoreCase("obligate")) {
                     f = 1;
                 } else {
-                    logger.info("Unknown frequency identifier: " + freq);
+                    logger.info("Unknown frequency identifier: {}", freq);
                 }
             }
         }
@@ -2458,7 +2455,7 @@ public class BOQA
                         {
                             this.scoreDistributions = (ApproximatedEmpiricalDistributions) ois.readObject();
                             distributionLoaded = true;
-                            logger.info("Score distribution loaded from \"" + inFile.getAbsolutePath() + "\"");
+                            logger.info("Score distribution loaded from \"{}\"", inFile.getAbsolutePath());
                         }
                     } catch (FileNotFoundException e) {
                     } catch (IOException e) {
@@ -2487,7 +2484,7 @@ public class BOQA
                                 * (BOQA.this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION + 1));
                     }
 
-                    logger.info("Precaculating score distribution for " + name());
+                    logger.info("Precaculating score distribution for {}", name());
 
                     Random rnd = new Random(9);
                     ExecutorService es = null;
@@ -2569,7 +2566,7 @@ public class BOQA
                             oos.writeObject(this.scoreDistributions);
                             underlyingStream.close();
 
-                            logger.info("Score distribution written to \"" + outFile.getAbsolutePath() + "\"");
+                            logger.info("Score distribution written to \"{}\"", outFile.getAbsolutePath());
                         } catch (IOException e) {
                             logger.warn("Failed to write score distribution: {}", e.getMessage(), e);
                         }

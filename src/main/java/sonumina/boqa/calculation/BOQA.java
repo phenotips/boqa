@@ -614,7 +614,6 @@ public class BOQA
     private WeightedConfigurationList determineCasesForItem(int item, boolean[] observed,
         boolean takeFrequenciesIntoAccount, boolean[] previousHidden, Configuration previousStats)
     {
-        int numAnnotatedTerms = this.items2TermFrequencies[item].length;
         int numTerms = this.slimGraph.getNumberOfVertices();
 
         if (previousHidden == null && previousStats != null) {
@@ -770,6 +769,8 @@ public class BOQA
                 break;
             case INHERIT_TRUE:
                 score = Math.log(1);
+                break;
+            default:
                 break;
         }
         return score;
@@ -3129,7 +3130,7 @@ public class BOQA
                     }
                 }
                 tries++;
-            } while (!valid);
+            } while (!valid && tries < 512);
         } else
         {
             choose(rnd, size, chosen, storage);

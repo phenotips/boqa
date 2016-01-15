@@ -237,9 +237,6 @@ public class BOQA
     /** If set to true, empty observation are allowed */
     private boolean ALLOW_EMPTY_OBSERVATIONS = false;
 
-    /** Activate debugging */
-    private final boolean DEBUG = false;
-
     /** Precalculate the jaccard matrix */
     private boolean PRECALCULATE_JACCARD = false;
 
@@ -269,9 +266,6 @@ public class BOQA
 
     /** Defines the maximal query size for the cached distribution */
     private int MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION = 20;
-
-    /** Some more verbose output */
-    private final boolean VERBOSE = false;
 
     /* Some configuration stuff */
 
@@ -605,11 +599,6 @@ public class BOQA
         }
     }
 
-    /**
-     * Indicates whether we want to measure the time of the algorithm. Used for profiling.
-     */
-    private static final boolean MEASURE_TIME = false;
-
     private long timeDuration;
 
     /**
@@ -635,10 +624,7 @@ public class BOQA
             throw new IllegalArgumentException();
         }
 
-        long now;
-        if (MEASURE_TIME) {
-            now = System.nanoTime();
-        }
+        long now = System.nanoTime();
 
         /* Tracks the hidden state configuration that matches the observed state best */
         // double bestScore = Double.NEGATIVE_INFINITY;
@@ -741,11 +727,8 @@ public class BOQA
             }
         }
 
-        if (MEASURE_TIME)
-        {
-            this.timeDuration += System.nanoTime() - now;
-            System.out.println(this.timeDuration / (1000 * 1000) + " " + statsList.size());
-        }
+        this.timeDuration += System.nanoTime() - now;
+        logger.debug(this.timeDuration / (1000 * 1000) + " " + statsList.size());
 
         return statsList;
     }
@@ -929,9 +912,7 @@ public class BOQA
 
             if (CONSIDER_ONLY_DIRECT_ASSOCIATIONS)
             {
-                if (this.VERBOSE) {
-                    System.out.println("Item " + item + " has " + this.items2DirectTerms[item].length + " annotations");
-                }
+                logger.debug("Item " + item + " has " + this.items2DirectTerms[item].length + " annotations");
                 for (i = 0; i < this.items2DirectTerms[item].length; i++)
                 {
                     boolean state = true;
@@ -940,11 +921,9 @@ public class BOQA
                     {
                         state = rnd.nextDouble() < this.items2TermFrequencies[item][i];
 
-                        if (this.VERBOSE) {
-                            System.out.println(this.items2DirectTerms[item][i] + "("
-                                + this.items2TermFrequencies[item][i] + ")="
-                                + state);
-                        }
+                        logger.debug(this.items2DirectTerms[item][i] + "("
+                            + this.items2TermFrequencies[item][i] + ")="
+                            + state);
                     }
 
                     if (state)
@@ -1078,11 +1057,11 @@ public class BOQA
                 }
             }
 
-            if (this.VERBOSE)
+            if (logger.isDebugEnabled())
             {
-                System.out.println("Number of terms that were missed in hidden: " + numMissedInHidden);
-                System.out.println("Number of hidden positives:" + numPositive);
-                System.out.println("Number of hidden negatives: " + numHidden);
+                logger.debug("Number of terms that were missed in hidden: " + numMissedInHidden);
+                logger.debug("Number of hidden positives:" + numPositive);
+                logger.debug("Number of hidden negatives: " + numHidden);
             }
 
             numPositive = 0;
@@ -1104,12 +1083,9 @@ public class BOQA
                 }
             }
 
-            if (this.VERBOSE)
-            {
-                System.out.println("Number of observed positives:" + numPositive);
-                System.out.println("Raw number of false positives: " + numFalsePositive);
-                System.out.println("Raw number of false negatives " + numFalseNegative);
-            }
+            logger.debug("Number of observed positives:" + numPositive);
+            logger.debug("Raw number of false positives: " + numFalsePositive);
+            logger.debug("Raw number of false negatives " + numFalseNegative);
 
             if (numPositive == 0 && !this.ALLOW_EMPTY_OBSERVATIONS)
             {
@@ -1121,12 +1097,12 @@ public class BOQA
             Configuration stats = new Configuration();
             determineCases(observations, hidden, stats);
 
-            if (this.VERBOSE)
+            if (logger.isDebugEnabled())
             {
-                System.out.println("Number of modelled false postives "
+                logger.debug("Number of modelled false postives "
                     + stats.getCases(Configuration.NodeCase.FALSE_POSITIVE) + " (alpha=" + stats.falsePositiveRate()
                     + "%)");
-                System.out.println("Number of modelled false negatives "
+                logger.debug("Number of modelled false negatives "
                     + stats.getCases(Configuration.NodeCase.FALSE_NEGATIVE) + " (beta=" + stats.falseNegativeRate()
                     + "%)");
             }
@@ -1416,7 +1392,7 @@ public class BOQA
      */
     public static int getNumProcessors()
     {
-        int numProcessors = MEASURE_TIME ? 1 : Runtime.getRuntime().availableProcessors();
+        int numProcessors = Runtime.getRuntime().availableProcessors();
         return numProcessors;
     }
 

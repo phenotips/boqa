@@ -23,7 +23,6 @@ import ontologizer.go.Ontology;
 import ontologizer.go.Term;
 import ontologizer.go.TermContainer;
 import ontologizer.types.ByteString;
-import sonumina.boqa.InternalDatafiles;
 import sonumina.boqa.benchmark.Benchmark;
 import sonumina.boqa.calculation.BOQA;
 import sonumina.boqa.calculation.BOQA.Result;

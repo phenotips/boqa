@@ -85,8 +85,7 @@ public class EmpiricalDistribution implements IDistribution
         ;
 
         Item[] items = new Item[newObservations.length];
-        for (int i = 0; i < newObservations.length; i++)
-        {
+        for (int i = 0; i < newObservations.length; i++) {
             items[i] = new Item();
             items[i].idx = i;
             items[i].obs = newObservations[i];
@@ -111,8 +110,7 @@ public class EmpiricalDistribution implements IDistribution
 
         int totalCounts = 0;
 
-        for (int i = 0; i < items.length; i++)
-        {
+        for (int i = 0; i < items.length; i++) {
             this.observations[i] = items[i].obs;
             totalCounts += counts[items[i].idx];
             this.cumCounts[i] = totalCounts;
@@ -131,8 +129,7 @@ public class EmpiricalDistribution implements IDistribution
     {
         int idx = Arrays.binarySearch(this.observations, x);
 
-        if (this.cumCounts == null)
-        {
+        if (this.cumCounts == null) {
             /* See doc to binarySearch */
             if (idx < 0) {
                 idx = -idx - 1;
@@ -144,10 +141,8 @@ public class EmpiricalDistribution implements IDistribution
                 }
             }
             return idx / (double) this.observations.length;
-        } else
-        {
-            if (idx < 0)
-            {
+        } else {
+            if (idx < 0) {
                 /*
                  * We have to subtract one more as cumCounts[i] contains the cdf() for i and i points to the next larger
                  * observation of x

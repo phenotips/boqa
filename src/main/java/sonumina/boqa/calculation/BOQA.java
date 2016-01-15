@@ -520,58 +520,50 @@ public class BOQA
      */
     private Configuration.NodeCase getNodeCase(int node, boolean[] hidden, boolean[] observed)
     {
-        if (areFalsePositivesPropagated())
-        {
+        if (areFalsePositivesPropagated()) {
             /* Here, we consider that false positives are inherited */
-            for (int i = 0; i < this.term2Children[node].length; i++)
-            {
+            for (int i = 0; i < this.term2Children[node].length; i++) {
                 int chld = this.term2Children[node][i];
-                if (observed[chld])
-                {
+                if (observed[chld]) {
                     if (observed[node]) {
                         return Configuration.NodeCase.INHERIT_TRUE;
-                    } else
-                    {
+                    } else {
                         /* NaN */
                         logger
-                            .error("A child of a node is on although the parent is not: Impossible configuration encountered!");
+                            .error(
+                                "A child of a node is on although the parent is not: Impossible configuration encountered!");
                         return Configuration.NodeCase.FAULT;
                     }
                 }
             }
         }
 
-        if (areFalseNegativesPropagated())
-        {
+        if (areFalseNegativesPropagated()) {
             /* Here, we consider that false negatives are inherited */
-            for (int i = 0; i < this.term2Parents[node].length; i++)
-            {
+            for (int i = 0; i < this.term2Parents[node].length; i++) {
                 int parent = this.term2Parents[node][i];
-                if (!observed[parent])
-                {
+                if (!observed[parent]) {
                     if (!observed[node]) {
                         return Configuration.NodeCase.INHERIT_FALSE;
-                    } else
-                    {
+                    } else {
                         /* NaN */
                         logger
-                            .error("A parent of a node is off although the child is not: Impossible configuration encountered!");
+                            .error(
+                                "A parent of a node is off although the child is not: Impossible configuration encountered!");
                         return Configuration.NodeCase.FAULT;
                     }
                 }
             }
         }
 
-        if (hidden[node])
-        {
+        if (hidden[node]) {
             /* Term is truly on */
             if (observed[node]) {
                 return Configuration.NodeCase.TRUE_POSITIVE;
             } else {
                 return Configuration.NodeCase.FALSE_NEGATIVE;
             }
-        } else
-        {
+        } else {
             /* Term is truly off */
             if (!observed[node]) {
                 return Configuration.NodeCase.TRUE_NEGATIVE;
@@ -592,8 +584,7 @@ public class BOQA
     {
         int numTerms = this.slimGraph.getNumberOfVertices();
 
-        for (int i = 0; i < numTerms; i++)
-        {
+        for (int i = 0; i < numTerms; i++) {
             Configuration.NodeCase c = getNodeCase(i, hidden, observedTerms);
             stats.increment(c);
         }
@@ -646,8 +637,7 @@ public class BOQA
             stats = previousStats;
         }
 
-        if (!takeFrequenciesIntoAccount)
-        {
+        if (!takeFrequenciesIntoAccount) {
             /* New */
             int[] diffOn = this.diffOnTerms[item];
             int[] diffOff = this.diffOffTerms[item];
@@ -676,12 +666,10 @@ public class BOQA
                 stats.increment(getNodeCase(element, hidden, observed));
             }
 
-                statsList.add(stats.clone(), 0);
-        } else
-        {
+            statsList.add(stats.clone(), 0);
+        } else {
             /* Initialize stats */
-            if (previousHidden != null)
-            {
+            if (previousHidden != null) {
                 for (int i = 0; i < hidden.length; i++) {
                     hidden[i] = false;
                 }
@@ -692,8 +680,7 @@ public class BOQA
             /*
              * Loop over all tracked configurations that may appear due to the given item being active
              */
-            for (int c = 0; c < this.diffOnTermsFreqs[item].length; c++)
-            {
+            for (int c = 0; c < this.diffOnTermsFreqs[item].length; c++) {
                 int[] diffOn = this.diffOnTermsFreqs[item][c];
                 int[] diffOff = this.diffOffTermsFreqs[item][c];
 
@@ -750,8 +737,7 @@ public class BOQA
 
         Configuration.NodeCase c = getNodeCase(termIndex, hidden, observed);
 
-        switch (c)
-        {
+        switch (c) {
             case FALSE_NEGATIVE:
                 score = Math.log(beta);
                 break;
@@ -803,7 +789,8 @@ public class BOQA
      * @param takeFrequenciesIntoAccount
      * @return
      */
-    public double score(int item, double alpha, double beta, boolean[] observedTerms, boolean takeFrequenciesIntoAccount)
+    public double score(int item, double alpha, double beta, boolean[] observedTerms,
+        boolean takeFrequenciesIntoAccount)
     {
         WeightedConfigurationList stats =
             determineCasesForItem(item, observedTerms, takeFrequenciesIntoAccount, null, null);
@@ -894,8 +881,7 @@ public class BOQA
 
         Observations o = null;
 
-        do
-        {
+        do {
             int i;
             int[] falsePositive = new int[this.slimGraph.getNumberOfVertices()];
             int numFalsePositive = 0;
@@ -911,15 +897,12 @@ public class BOQA
 
             boolean CONSIDER_ONLY_DIRECT_ASSOCIATIONS = true;
 
-            if (CONSIDER_ONLY_DIRECT_ASSOCIATIONS)
-            {
+            if (CONSIDER_ONLY_DIRECT_ASSOCIATIONS) {
                 logger.debug("Item {} has {} annotations", item, this.items2DirectTerms[item].length);
-                for (i = 0; i < this.items2DirectTerms[item].length; i++)
-                {
+                for (i = 0; i < this.items2DirectTerms[item].length; i++) {
                     boolean state = true;
 
-                    if (respectFrequencies())
-                    {
+                    if (respectFrequencies()) {
                         state = rnd.nextDouble() < this.items2TermFrequencies[item][i];
 
                         logger.debug(this.items2DirectTerms[item][i] + "("
@@ -927,8 +910,7 @@ public class BOQA
                             + state);
                     }
 
-                    if (state)
-                    {
+                    if (state) {
                         hidden[this.items2DirectTerms[item][i]] = state;
                         observations[this.items2DirectTerms[item][i]] = state;
 
@@ -936,16 +918,13 @@ public class BOQA
                         activateAncestors(this.items2DirectTerms[item][i], observations);
 
                         numPositive++;
-                    } else
-                    {
+                    } else {
                         numMissedInHidden++;
                     }
                 }
 
-            } else
-            {
-                for (i = 0; i < this.items2Terms[item].length; i++)
-                {
+            } else {
+                for (i = 0; i < this.items2Terms[item].length; i++) {
                     hidden[this.items2Terms[item][i]] = true;
                     observations[this.items2Terms[item][i]] = true;
                     numPositive++;
@@ -953,20 +932,15 @@ public class BOQA
             }
 
             /* Fill in false and true positives */
-            for (i = 0; i < observations.length; i++)
-            {
+            for (i = 0; i < observations.length; i++) {
                 double r = rnd.nextDouble();
-                if (observations[i])
-                {
-                    if (r < this.BETA)
-                    {
+                if (observations[i]) {
+                    if (r < this.BETA) {
                         falseNegative[numFalseNegative++] = i;
                         // System.out.println("false negative " + i);
                     }
-                } else
-                {
-                    if (r < this.ALPHA)
-                    {
+                } else {
+                    if (r < this.ALPHA) {
                         falsePositive[numFalsePositive++] = i;
                         // System.out.println("false positive " + i);
                     }
@@ -974,24 +948,22 @@ public class BOQA
             }
 
             /* apply false negatives */
-            if (areFalseNegativesPropagated())
-            {
-                /* false negative, but also make all descendants negative. They are considered as inherited in this case */
-                for (i = 0; i < numFalseNegative; i++)
-                {
+            if (areFalseNegativesPropagated()) {
+                /*
+                 * false negative, but also make all descendants negative. They are considered as inherited in this case
+                 */
+                for (i = 0; i < numFalseNegative; i++) {
                     observations[falseNegative[i]] = false;
                     deactivateDecendants(falseNegative[i], observations);
                 }
-            } else
-            {
+            } else {
                 /* false negative */
                 for (i = 0; i < numFalseNegative; i++) {
                     observations[falseNegative[i]] = false;
                 }
 
                 /* fix for true path rule */
-                for (i = 0; i < observations.length; i++)
-                {
+                for (i = 0; i < observations.length; i++) {
                     if (observations[i]) {
                         activateAncestors(i, observations);
                     }
@@ -999,41 +971,34 @@ public class BOQA
             }
 
             /* apply false positives */
-            if (areFalsePositivesPropagated())
-            {
+            if (areFalsePositivesPropagated()) {
                 /* fix for true path rule */
-                for (i = 0; i < numFalsePositive; i++)
-                {
+                for (i = 0; i < numFalsePositive; i++) {
                     observations[falsePositive[i]] = true;
                     activateAncestors(falsePositive[i], observations);
                 }
-            } else
-            {
+            } else {
                 /* False positive */
                 for (i = 0; i < numFalsePositive; i++) {
                     observations[falsePositive[i]] = true;
                 }
 
                 /* fix for the true path rule (reverse case) */
-                for (i = 0; i < observations.length; i++)
-                {
+                for (i = 0; i < observations.length; i++) {
                     if (!observations[i]) {
                         deactivateDecendants(i, observations);
                     }
                 }
             }
 
-            if (this.maxTerms != -1)
-            {
+            if (this.maxTerms != -1) {
                 IntArray sparse = new IntArray(observations);
                 int[] mostSpecific = mostSpecificTerms(sparse.get());
-                if (mostSpecific.length > this.maxTerms)
-                {
+                if (mostSpecific.length > this.maxTerms) {
                     int[] newTerms = new int[this.maxTerms];
 
                     /* Now randomly choose maxTerms and place them in new Terms */
-                    for (int j = 0; j < this.maxTerms; j++)
-                    {
+                    for (int j = 0; j < this.maxTerms; j++) {
                         int r = rnd.nextInt(mostSpecific.length - j);
                         newTerms[j] = mostSpecific[r];
                         mostSpecific[r] = mostSpecific[mostSpecific.length - j - 1]; /*
@@ -1044,8 +1009,7 @@ public class BOQA
                     for (int j = 0; j < observations.length; j++) {
                         observations[j] = false;
                     }
-                    for (int t : newTerms)
-                    {
+                    for (int t : newTerms) {
                         observations[t] = true;
                         activateAncestors(t, observations);
                     }
@@ -1058,8 +1022,7 @@ public class BOQA
                 }
             }
 
-            if (logger.isDebugEnabled())
-            {
+            if (logger.isDebugEnabled()) {
                 logger.debug("Number of terms that were missed in hidden: " + numMissedInHidden);
                 logger.debug("Number of hidden positives:" + numPositive);
                 logger.debug("Number of hidden negatives: " + numHidden);
@@ -1068,16 +1031,13 @@ public class BOQA
             numPositive = 0;
             numFalseNegative = 0;
             numFalsePositive = 0;
-            for (i = 0; i < observations.length; i++)
-            {
-                if (observations[i])
-                {
+            for (i = 0; i < observations.length; i++) {
+                if (observations[i]) {
                     if (!hidden[i]) {
                         numFalsePositive++;
                     }
                     numPositive++;
-                } else
-                {
+                } else {
                     if (hidden[i]) {
                         numFalseNegative++;
                     }
@@ -1088,8 +1048,7 @@ public class BOQA
             logger.debug("Raw number of false positives: {}", numFalsePositive);
             logger.debug("Raw number of false negatives {}", numFalseNegative);
 
-            if (numPositive == 0 && !this.ALLOW_EMPTY_OBSERVATIONS)
-            {
+            if (numPositive == 0 && !this.ALLOW_EMPTY_OBSERVATIONS) {
                 /* Queries with no query make no sense */
                 retry++;
                 continue;
@@ -1098,12 +1057,11 @@ public class BOQA
             Configuration stats = new Configuration();
             determineCases(observations, hidden, stats);
 
-            if (logger.isDebugEnabled())
-            {
+            if (logger.isDebugEnabled()) {
                 logger.debug("Number of modelled false postives {} (alpha={}%)",
                     stats.getCases(Configuration.NodeCase.FALSE_POSITIVE), stats.falsePositiveRate());
                 logger.debug("Number of modelled false negatives {}  (beta={}%)",
-                    stats.getCases(Configuration.NodeCase.FALSE_NEGATIVE),  stats.falseNegativeRate());
+                    stats.getCases(Configuration.NodeCase.FALSE_NEGATIVE), stats.falseNegativeRate());
             }
 
             o = new Observations();
@@ -1165,8 +1123,7 @@ public class BOQA
         for (int i = 0; i < this.allItemList.size(); i++) {
             fp += this.allItemList.get(i).hashCode();
         }
-        for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++)
-        {
+        for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++) {
             fp += this.slimGraph.getVertex(i).getID().id;
             fp += this.slimGraph.getVertex(i).getName().hashCode();
         }
@@ -1188,8 +1145,7 @@ public class BOQA
 
         // graph.findRedundantISARelations();
 
-        if (this.micaMatrix != null)
-        {
+        if (this.micaMatrix != null) {
             logger.error("setup() called a 2nd time.");
             this.micaMatrix = null;
         }
@@ -1201,13 +1157,11 @@ public class BOQA
          * If we want to consider items with frequencies only, we like to shrink the item list to contain only the
          * relevant items.
          */
-        if (this.CONSIDER_FREQUENCIES_ONLY)
-        {
+        if (this.CONSIDER_FREQUENCIES_ONLY) {
             int oldSize = this.allItemList.size();
 
             itemsToBeConsidered = new HashSet<ByteString>();
-            for (int i = 0; i < this.allItemList.size(); i++)
-            {
+            for (int i = 0; i < this.allItemList.size(); i++) {
                 if (this.itemHasFrequencies[i]) {
                     itemsToBeConsidered.add(this.allItemList.get(i));
                 }
@@ -1223,12 +1177,10 @@ public class BOQA
         }
 
         /** Here we precalculate the jaccard similiartiy of two given terms in a dense matrix */
-        if (this.PRECALCULATE_JACCARD)
-        {
+        if (this.PRECALCULATE_JACCARD) {
             logger.info("Calculating Jaccard");
             double[][] newJaccardMatrix = new double[this.slimGraph.getNumberOfVertices()][];
-            for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++)
-            {
+            for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++) {
                 newJaccardMatrix[i] = new double[this.slimGraph.getNumberOfVertices() - i - 1];
                 for (int j = i + 1; j < this.slimGraph.getNumberOfVertices(); j++) {
                     newJaccardMatrix[i][j - i - 1] = jaccard(i, j);
@@ -1239,12 +1191,10 @@ public class BOQA
         }
 
         /** Here we precalculate the maxICs of two given terms in a dense matrix */
-        if (this.PRECALCULATE_MAXICS)
-        {
+        if (this.PRECALCULATE_MAXICS) {
             logger.info("Calculating max ICs");
             int[][] newMaxICMatrix = new int[this.slimGraph.getNumberOfVertices()][];
-            for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++)
-            {
+            for (int i = 0; i < this.slimGraph.getNumberOfVertices(); i++) {
                 newMaxICMatrix[i] = new int[this.slimGraph.getNumberOfVertices() - i - 1];
                 for (int j = i + 1; j < this.slimGraph.getNumberOfVertices(); j++) {
                     newMaxICMatrix[i][j - i - 1] = commonAncestorWithMaxIC(i, j);
@@ -1255,25 +1205,24 @@ public class BOQA
             logger.info("Calculated max ICs");
         }
 
-        /** Here we precalculate for each item the term which contributes as maximum ic term to the resnick calculation */
-        if (this.PRECALCULATE_ITEM_MAXS)
-        {
+        /**
+         * Here we precalculate for each item the term which contributes as maximum ic term to the resnick calculation
+         */
+        if (this.PRECALCULATE_ITEM_MAXS) {
             logger.info("Calculating item maxs");
             this.resnikTermSim.maxScoreForItem =
                 new double[this.allItemList.size()][this.slimGraph.getNumberOfVertices()];
             this.linTermSim.maxScoreForItem = new double[this.allItemList.size()][this.slimGraph.getNumberOfVertices()];
             this.jcTermSim.maxScoreForItem = new double[this.allItemList.size()][this.slimGraph.getNumberOfVertices()];
 
-            for (int item = 0; item < this.allItemList.size(); item++)
-            {
+            for (int item = 0; item < this.allItemList.size(); item++) {
                 /* The fixed set */
                 int[] t2 = this.items2DirectTerms[item];
 
                 /* The set representing a single query term */
                 int[] t1 = new int[1];
 
-                for (int to = 0; to < this.slimGraph.getNumberOfVertices(); to++)
-                {
+                for (int to = 0; to < this.slimGraph.getNumberOfVertices(); to++) {
                     t1[0] = to;
                     this.resnikTermSim.maxScoreForItem[item][to] = scoreMaxAvg(t1, t2, this.resnikTermSim);
                     this.linTermSim.maxScoreForItem[item][to] = scoreMaxAvg(t1, t2, this.linTermSim);
@@ -1317,8 +1266,7 @@ public class BOQA
             "\\parbox{\\myboxlen}{\\centering#3}" +
             "\\fi}\"";
 
-        try
-        {
+        try {
             GODOTWriter.writeDOT(this.graph.getInducedGraph(this.termEnumerator.getAllAnnotatedTermsAsList()), out,
                 null,
                 hpoTerms, new AbstractDotAttributesProvider()
@@ -1345,8 +1293,7 @@ public class BOQA
                             "style=\"rounded corners,top color=white,bottom color=black!10,draw=black!50,very thick\"";
                     }
                 }, "nodesep=0.2; ranksep=0.1;" + preamble, false, false, null);
-        } catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             logger.error("Failed to write graphics due to: {}", ex.getLocalizedMessage());
         }
     }
@@ -1369,8 +1316,7 @@ public class BOQA
 
         Random rnd = new Random();
 
-        for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++)
-        {
+        for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
             int q = 10;
             int[] randomizedTerms = new int[q];
 
@@ -1411,8 +1357,7 @@ public class BOQA
             boolean inB = false;
 
             for (int element2 : b) {
-                if (element == element2)
-                {
+                if (element == element2) {
                     inB = true;
                     break;
                 }
@@ -1503,12 +1448,9 @@ public class BOQA
 
         /* list all evidence codes */
         HashMap<ByteString, Integer> evidences = new HashMap<ByteString, Integer>();
-        for (Gene2Associations g2a : this.assoc)
-        {
-            for (Association a : g2a)
-            {
-                if (a.getEvidence() != null)
-                {
+        for (Gene2Associations g2a : this.assoc) {
+            for (Association a : g2a) {
+                if (a.getEvidence() != null) {
                     /* Worst implementation ever! */
                     Integer evidence = evidences.get(a.getEvidence());
                     if (evidence == null) {
@@ -1522,8 +1464,7 @@ public class BOQA
             }
         }
 
-        if (logger.isInfoEnabled())
-        {
+        if (logger.isInfoEnabled()) {
             logger.info(allItemsToBeConsidered.size() + " items shall be considered");
             StringBuilder builder = new StringBuilder("Available evidences: ");
             for (Entry<ByteString, Integer> ev : evidences.entrySet()) {
@@ -1532,23 +1473,20 @@ public class BOQA
             logger.info(builder.toString());
         }
 
-        if (this.evidenceCodes != null)
-        {
+        if (this.evidenceCodes != null) {
             evidences.clear();
             for (String ev : this.evidenceCodes) {
                 evidences.put(new ByteString(ev), 1);
             }
 
-            if (logger.isInfoEnabled())
-            {
+            if (logger.isInfoEnabled()) {
                 StringBuilder builder = new StringBuilder("Requested evidences: ");
                 for (ByteString ev : evidences.keySet()) {
                     builder.append(ev.toString());
                 }
                 logger.info(builder.toString());
             }
-        } else
-        {
+        } else {
             /* Means take everything */
             evidences = null;
         }
@@ -1581,8 +1519,7 @@ public class BOQA
         this.allItemList = new ArrayList<ByteString>();
         this.item2Index = new HashMap<ByteString, Integer>();
         i = 0;
-        for (ByteString item : itemEnumerator)
-        {
+        for (ByteString item : itemEnumerator) {
             this.allItemList.add(item);
             this.item2Index.put(item, i);
             i++;
@@ -1593,8 +1530,7 @@ public class BOQA
         /* Fill item matrix */
         this.items2Terms = new int[this.allItemList.size()][];
         i = 0;
-        for (ByteString item : itemEnumerator)
-        {
+        for (ByteString item : itemEnumerator) {
             int j = 0;
 
             ArrayList<TermID> tids = itemEnumerator.getTermsAnnotatedToTheItem(item);
@@ -1611,21 +1547,16 @@ public class BOQA
         /* Fill direct item matrix */
         this.items2DirectTerms = new int[this.allItemList.size()][];
         i = 0;
-        for (ByteString item : itemEnumerator)
-        {
+        for (ByteString item : itemEnumerator) {
             int j = 0;
 
             ArrayList<TermID> tids = itemEnumerator.getTermsDirectlyAnnotatedToTheItem(item);
 
-            if (false)
-            {
+            if (false) {
                 /* Perform sanity check */
-                for (TermID s : tids)
-                {
-                    for (TermID d : tids)
-                    {
-                        if (this.graph.existsPath(s, d) || this.graph.existsPath(d, s))
-                        {
+                for (TermID s : tids) {
+                    for (TermID d : tids) {
+                        if (this.graph.existsPath(s, d) || this.graph.existsPath(d, s)) {
                             System.out.println("Item \"" + item + "\" is annotated to " + s.toString() + " and "
                                 + d.toString());
                         }
@@ -1646,8 +1577,7 @@ public class BOQA
         this.items2TermFrequencies = new double[this.allItemList.size()][];
         this.itemHasFrequencies = new boolean[this.allItemList.size()];
         this.item2TermFrequenciesOrder = new int[this.allItemList.size()][];
-        for (i = 0; i < this.items2DirectTerms.length; i++)
-        {
+        for (i = 0; i < this.items2DirectTerms.length; i++) {
             /**
              * A term and the corresponding frequency. We use this for sorting.
              *
@@ -1684,8 +1614,7 @@ public class BOQA
             // throw new IllegalArgumentException("Number of associations differs (" + as.getAssociations().size() +
             // ") from the number of directly annotated terms (" + items2DirectTerms[i].length + ").");
 
-            for (int j = 0; j < this.items2DirectTerms[i].length; j++)
-            {
+            for (int j = 0; j < this.items2DirectTerms[i].length; j++) {
                 boolean hasExlipictFrequency = false;
 
                 /* Default frequency */
@@ -1694,10 +1623,8 @@ public class BOQA
                 TermID tid = this.slimGraph.getVertex(this.items2DirectTerms[i][j]).getID();
 
                 /* Find frequency. We now have a O(n^3) algo. Will be optimized later */
-                for (Association a : as)
-                {
-                    if (a.getTermID().equals(tid) && a.getAspect() != null)
-                    {
+                for (Association a : as) {
+                    if (a.getTermID().equals(tid) && a.getAspect() != null) {
                         f = getFrequencyFromString(a.getAspect().toString());
                         if (f < 1.0) {
                             hasExlipictFrequency = true;
@@ -1728,13 +1655,13 @@ public class BOQA
 
         /* Calculate IC */
         this.terms2IC = new double[this.slimGraph.getNumberOfVertices()];
-        for (i = 0; i < this.slimGraph.getNumberOfVertices(); i++)
-        {
+        for (i = 0; i < this.slimGraph.getNumberOfVertices(); i++) {
             Term t = this.slimGraph.getVertex(i);
             this.terms2IC[i] =
                 -Math
-                .log(((double) this.termEnumerator.getAnnotatedGenes(t.getID()).totalAnnotatedCount() / this.allItemList
-                    .size()));
+                    .log(((double) this.termEnumerator.getAnnotatedGenes(t.getID()).totalAnnotatedCount()
+                        / this.allItemList
+                            .size()));
         }
 
         ArrayList<Integer> itemIndices = new ArrayList<Integer>();
@@ -1742,8 +1669,7 @@ public class BOQA
             itemIndices.add(o);
         }
 
-        if (false)
-        {
+        if (false) {
             System.out.println("Start TSP");
             long start = System.nanoTime();
             Algorithms.approximatedTSP(itemIndices, itemIndices.get(0),
@@ -1774,8 +1700,7 @@ public class BOQA
         this.diffOffTerms = new int[this.allItemList.size()][];
         this.diffOnTerms[0] = this.items2Terms[0]; /* For the first step, all terms must be activated */
         this.diffOffTerms[0] = new int[0];
-        for (i = 1; i < this.allItemList.size(); i++)
-        {
+        for (i = 1; i < this.allItemList.size(); i++) {
             int prevOnTerms[] = this.items2Terms[i - 1];
             int newOnTerms[] = this.items2Terms[i];
 
@@ -1789,8 +1714,7 @@ public class BOQA
         this.diffOnTermsFreqs = new int[this.allItemList.size()][][];
         this.diffOffTermsFreqs = new int[this.allItemList.size()][][];
         this.factors = new double[this.allItemList.size()][];
-        for (int item = 0; item < this.allItemList.size(); item++)
-        {
+        for (int item = 0; item < this.allItemList.size(); item++) {
             int numTerms = this.items2TermFrequencies[item].length;
             int numTermsWithExplicitFrequencies = 0;
             int numConfigs = 0;
@@ -1799,8 +1723,7 @@ public class BOQA
              * Determine the number of terms that have non-1.0 frequency. We restrict them to the top 6 (the less
              * probable) due to complexity issues and hope that this a good enough approximation.
              */
-            for (i = 0; i < numTerms && i < this.maxFrequencyTerms; i++)
-            {
+            for (i = 0; i < numTerms && i < this.maxFrequencyTerms; i++) {
                 if (this.items2TermFrequencies[item][this.item2TermFrequenciesOrder[item][i]] >= 1.0) {
                     break;
                 }
@@ -1825,20 +1748,18 @@ public class BOQA
 
             int config = 0;
 
-            while ((s = sg.next()) != null)
-            {
+            while ((s = sg.next()) != null) {
                 boolean[] hidden = new boolean[this.slimGraph.getNumberOfVertices()];
                 boolean[] taken = new boolean[numTermsWithExplicitFrequencies];
 
                 double factor = 0.0;
 
                 /* First, activate variable terms according to the current selection */
-                for (i = 0; i < s.r; i++)
-                {
+                for (i = 0; i < s.r; i++) {
                     int ti = this.item2TermFrequenciesOrder[item][s.j[i]]; /*
-                     * index of term within the all directly
-                     * associated indices
-                     */
+                                                                            * index of term within the all directly
+                                                                            * associated indices
+                                                                            */
                     int h = this.items2DirectTerms[item][ti]; /* global index of term */
                     hidden[h] = true;
                     activateAncestors(h, hidden);
@@ -1847,8 +1768,7 @@ public class BOQA
                 }
 
                 /* Needs also respect the inactive terms in the factor */
-                for (i = 0; i < numTermsWithExplicitFrequencies; i++)
-                {
+                for (i = 0; i < numTermsWithExplicitFrequencies; i++) {
                     if (!taken[i]) {
                         factor +=
                             Math.log(1 - this.items2TermFrequencies[item][this.item2TermFrequenciesOrder[item][i]]);
@@ -1856,8 +1776,7 @@ public class BOQA
                 }
 
                 /* Second, activate mandatory terms */
-                for (i = numTermsWithExplicitFrequencies; i < numTerms; i++)
-                {
+                for (i = numTermsWithExplicitFrequencies; i < numTerms; i++) {
                     int ti = this.item2TermFrequenciesOrder[item][i];
                     int h = this.items2DirectTerms[item][ti]; /* global index of term */
                     hidden[h] = true;
@@ -1917,8 +1836,7 @@ public class BOQA
         }
 
         Matcher matcher = frequencyPattern.matcher(freq);
-        if (matcher.matches())
-        {
+        if (matcher.matches()) {
             String fractionalPart = matcher.group(2);
             if (fractionalPart == null || fractionalPart.length() == 0) {
                 fractionalPart = "0";
@@ -1928,14 +1846,11 @@ public class BOQA
                 Double.parseDouble(matcher.group(1)) + Double.parseDouble(fractionalPart)
                     / Math.pow(10, fractionalPart.length());
             f /= 100.0;
-        } else
-        {
+        } else {
             matcher = frequencyFractionPattern.matcher(freq);
-            if (matcher.matches())
-            {
+            if (matcher.matches()) {
                 f = Double.parseDouble(matcher.group(1)) / Double.parseDouble(matcher.group(2));
-            } else
-            {
+            } else {
                 if (freq.equalsIgnoreCase("very rare")) {
                     f = 0.01;
                 } else if (freq.equalsIgnoreCase("rare")) {
@@ -2070,8 +1985,7 @@ public class BOQA
 
         ArrayList<Future<?>> futureList = new ArrayList<Future<?>>();
 
-        for (i = 0; i < this.allItemList.size(); i++)
-        {
+        for (i = 0; i < this.allItemList.size(); i++) {
             final int item = i;
 
             /* Construct the runnable suitable for the calculation for a single item */
@@ -2085,18 +1999,15 @@ public class BOQA
                         determineCasesForItem(item, observations.observations, takeFrequenciesIntoAccount,
                             numThreads > 1 ? null : previousHidden, numThreads > 1 ? null : previousStat);
 
-                    for (int a = 0; a < BOQA.this.ALPHA_GRID.length; a++)
-                    {
-                        for (int b = 0; b < BOQA.this.BETA_GRID.length; b++)
-                        {
+                    for (int a = 0; a < BOQA.this.ALPHA_GRID.length; a++) {
+                        for (int b = 0; b < BOQA.this.BETA_GRID.length; b++) {
                             scores[item][a][b] = stats.score(BOQA.this.ALPHA_GRID[a], BOQA.this.BETA_GRID[b]);
                             res.scores[item] = Util.logAdd(res.scores[item], scores[item][a][b]);
                         }
                     }
 
                     /* This is used only for benchmarks, where we know the true configuration */
-                    if (observations.observationStats != null)
-                    {
+                    if (observations.observationStats != null) {
                         /* Calculate ideal scores */
                         double fpr = observations.observationStats.falsePositiveRate();
                         if (fpr == 0) {
@@ -2128,12 +2039,10 @@ public class BOQA
             }
         }
 
-        if (es != null)
-        {
+        if (es != null) {
             es.shutdown();
 
-            for (Future<?> f : futureList)
-            {
+            for (Future<?> f : futureList) {
                 try {
                     f.get();
                 } catch (Exception e) {
@@ -2153,20 +2062,18 @@ public class BOQA
         double normalization = Math.log(0);
         double idealNormalization = Math.log(0);
 
-        for (i = 0; i < this.allItemList.size(); i++)
-        {
+        for (i = 0; i < this.allItemList.size(); i++) {
             normalization = Util.logAdd(normalization, res.scores[i]);
             idealNormalization = Util.logAdd(idealNormalization, idealScores[i]);
         }
 
-        for (i = 0; i < this.allItemList.size(); i++)
-        {
+        for (i = 0; i < this.allItemList.size(); i++) {
             res.marginals[i] = Math.min(Math.exp(res.scores[i] - normalization), 1);
             res.marginalsIdeal[i] = Math.min(Math.exp(idealScores[i] - idealNormalization), 1);
 
             // System.out.println(i + ": " + idealScores[i] + " (" + res.getMarginalIdeal(i) + ") " + res.scores[i] +
             // " (" + res.getMarginal(i) + ")");
-            // System.out.println(res.marginals[i] + "  " + res.marginalsIdeal[i]);
+            // System.out.println(res.marginals[i] + " " + res.marginalsIdeal[i]);
         }
 
         /*
@@ -2175,14 +2082,13 @@ public class BOQA
          * strange plots. Therefore, we take the parameter estimated marginals as the ideal one if they match the
          * reality better.
          */
-        if (res.marginalsIdeal[observations.item] < res.marginals[observations.item])
-        {
+        if (res.marginalsIdeal[observations.item] < res.marginals[observations.item]) {
             for (i = 0; i < this.allItemList.size(); i++) {
                 res.marginalsIdeal[i] = res.marginals[i];
             }
         }
 
-        // System.out.println(idealNormalization + "  " + normalization);
+        // System.out.println(idealNormalization + " " + normalization);
         // if (exitNow)
         // System.exit(10);
         return res;
@@ -2201,8 +2107,7 @@ public class BOQA
      */
     private int commonAncestorWithMaxIC(int t1, int t2)
     {
-        if (this.micaMatrix != null)
-        {
+        if (this.micaMatrix != null) {
             if (t1 < t2) {
                 return this.micaMatrix[t1][t2 - t1 - 1];
             } else if (t2 < t1) {
@@ -2216,12 +2121,10 @@ public class BOQA
         int[] ancestorsA;
         int[] ancestorsB;
 
-        if (this.term2Ancestors[t1].length > this.term2Ancestors[t2].length)
-        {
+        if (this.term2Ancestors[t1].length > this.term2Ancestors[t2].length) {
             ancestorsA = this.term2Ancestors[t1];
             ancestorsB = this.term2Ancestors[t2];
-        } else
-        {
+        } else {
             ancestorsA = this.term2Ancestors[t1];
             ancestorsB = this.term2Ancestors[t2];
         }
@@ -2231,12 +2134,10 @@ public class BOQA
 
         for (int term : ancestorsA) {
             for (int element : ancestorsB) {
-                if (term == element)
-                {
+                if (term == element) {
                     double ic = this.terms2IC[term];
 
-                    if (ic > bestIC)
-                    {
+                    if (ic > bestIC) {
                         bestIC = ic;
                         bestTerm = term;
                     }
@@ -2245,8 +2146,7 @@ public class BOQA
             }
         }
 
-        if (bestTerm == -1)
-        {
+        if (bestTerm == -1) {
             throw new RuntimeException("No best term found, which is strange.");
         }
 
@@ -2266,8 +2166,7 @@ public class BOQA
             return 1;
         }
 
-        if (this.jaccardMatrix != null)
-        {
+        if (this.jaccardMatrix != null) {
             if (t1 < t2) {
                 return this.jaccardMatrix[t1][t2 - t1 - 1];
             } else {
@@ -2333,8 +2232,7 @@ public class BOQA
         }
 
         int[] observedTerms = new int[numObservedTerms];
-        for (int i = 0, j = 0; i < observations.length; i++)
-        {
+        for (int i = 0, j = 0; i < observations.length; i++) {
             if (observations[i]) {
                 observedTerms[j++] = i;
             }
@@ -2391,14 +2289,12 @@ public class BOQA
                     + querySize);
             this.scoreDistributionLock.readLock().unlock();
 
-            if (d == null)
-            {
+            if (d == null) {
                 /* Determine score distribution */
                 double[] scores = new double[BOQA.this.SIZE_OF_SCORE_DISTRIBUTION];
                 double maxScore = Double.NEGATIVE_INFINITY;
 
-                for (int j = 0; j < BOQA.this.SIZE_OF_SCORE_DISTRIBUTION; j++)
-                {
+                for (int j = 0; j < BOQA.this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
                     scores[j] = scoreVsItem(queries[j], item, this);
                     if (scores[j] > maxScore) {
                         maxScore = scores[j];
@@ -2430,8 +2326,7 @@ public class BOQA
         public void setupDistribution()
         {
             /** Instantiates the query cache */
-            if (BOQA.this.CACHE_RANDOM_QUERIES)
-            {
+            if (BOQA.this.CACHE_RANDOM_QUERIES) {
                 boolean distributionLoaded = false;
                 String scoreDistributionsName =
                     "scoreDistributions-" + name() + "-" + BOQA.this.allItemList.size() + "-"
@@ -2441,8 +2336,7 @@ public class BOQA
                 BOQA.this.queryCache = new QuerySets(BOQA.this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION + 1);
 
                 if ((BOQA.this.CACHE_SCORE_DISTRIBUTION || BOQA.this.PRECALCULATE_SCORE_DISTRIBUTION)
-                    && BOQA.this.TRY_LOADING_SCORE_DISTRIBUTION)
-                {
+                    && BOQA.this.TRY_LOADING_SCORE_DISTRIBUTION) {
                     InputStream underlyingStream = null;
                     ObjectInputStream ois = null;
                     try {
@@ -2451,8 +2345,7 @@ public class BOQA
                         ois = new ObjectInputStream(underlyingStream);
 
                         int fingerprint = ois.readInt();
-                        if (fingerprint == fingerprint())
-                        {
+                        if (fingerprint == fingerprint()) {
                             this.scoreDistributions = (ApproximatedEmpiricalDistributions) ois.readObject();
                             distributionLoaded = true;
                             logger.info("Score distribution loaded from \"{}\"", inFile.getAbsolutePath());
@@ -2476,8 +2369,7 @@ public class BOQA
                     }
                 }
 
-                if (BOQA.this.PRECALCULATE_SCORE_DISTRIBUTION)
-                {
+                if (BOQA.this.PRECALCULATE_SCORE_DISTRIBUTION) {
                     if (!distributionLoaded) {
                         this.scoreDistributions =
                             new ApproximatedEmpiricalDistributions(BOQA.this.allItemList.size()
@@ -2496,8 +2388,7 @@ public class BOQA
                         es = null;
                     }
 
-                    for (int i = 0; i < BOQA.this.allItemList.size(); i++)
-                    {
+                    for (int i = 0; i < BOQA.this.allItemList.size(); i++) {
                         final long seed = rnd.nextLong();
                         final int item = i;
 
@@ -2508,8 +2399,7 @@ public class BOQA
                             {
                                 Random rnd = new Random(seed);
 
-                                for (int qs = 1; qs <= BOQA.this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION; qs++)
-                                {
+                                for (int qs = 1; qs <= BOQA.this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION; qs++) {
                                     int[][] queries = getRandomizedQueries(rnd, qs);
                                     getScoreDistribution(qs, item, queries);
                                 }
@@ -2524,12 +2414,10 @@ public class BOQA
                     }
 
                     /* Cleanup */
-                    if (es != null)
-                    {
+                    if (es != null) {
                         es.shutdown();
 
-                        for (Future<?> f : futureList)
-                        {
+                        for (Future<?> f : futureList) {
                             try {
                                 f.get();
                             } catch (Exception e) {
@@ -2549,8 +2437,7 @@ public class BOQA
 
                     logger.info("Score distribution has been precalculated");
 
-                    if (BOQA.this.STORE_SCORE_DISTRIBUTION && !distributionLoaded)
-                    {
+                    if (BOQA.this.STORE_SCORE_DISTRIBUTION && !distributionLoaded) {
                         try {
                             File outFile = new File(scoreDistributionsName);
                             OutputStream underlyingStream = new GZIPOutputStream(new FileOutputStream(outFile));
@@ -2627,8 +2514,9 @@ public class BOQA
         @Override
         public double termSim(int t1, int t2)
         {
-            return (1) / (1 + BOQA.this.terms2IC[t1] + BOQA.this.terms2IC[t2] - 2 * BOQA.this.terms2IC[commonAncestorWithMaxIC(
-                t1, t2)]);
+            return (1)
+                / (1 + BOQA.this.terms2IC[t1] + BOQA.this.terms2IC[t2] - 2 * BOQA.this.terms2IC[commonAncestorWithMaxIC(
+                    t1, t2)]);
         }
 
         @Override
@@ -2649,12 +2537,10 @@ public class BOQA
     private double scoreMaxAvg(int[] tl1, int[] tl2, ITermSim termSim)
     {
         double totalScore = 0;
-        for (int t1 : tl1)
-        {
+        for (int t1 : tl1) {
             double maxScore = Double.NEGATIVE_INFINITY;
 
-            for (int t2 : tl2)
-            {
+            for (int t2 : tl2) {
                 double score = termSim.termSim(t1, t2);
                 if (score > maxScore) {
                     maxScore = score;
@@ -2712,8 +2598,7 @@ public class BOQA
      */
     private double scoreMaxAvgVsItem(int[] tl1, int item, AbstractTermSim termSim)
     {
-        if (termSim.maxScoreForItem != null)
-        {
+        if (termSim.maxScoreForItem != null) {
             double score = 0;
             for (int t1 : tl1) {
                 score += termSim.maxScoreForItem[item][t1];
@@ -2821,24 +2706,20 @@ public class BOQA
         double score, AbstractTermSim termSim)
     {
         /* Turn it into a p value by considering the distribution */
-        if (this.CACHE_RANDOM_QUERIES)
-        {
+        if (this.CACHE_RANDOM_QUERIES) {
             if (querySize > this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION) {
                 querySize = this.MAX_QUERY_SIZE_FOR_CACHED_DISTRIBUTION;
             }
 
             int[][] queries = getRandomizedQueries(rnd, querySize);
 
-            if (this.CACHE_SCORE_DISTRIBUTION || this.PRECALCULATE_SCORE_DISTRIBUTION)
-            {
+            if (this.CACHE_SCORE_DISTRIBUTION || this.PRECALCULATE_SCORE_DISTRIBUTION) {
                 ApproximatedEmpiricalDistribution d = termSim.getScoreDistribution(querySize, item, queries);
                 res.marginals[item] = 1 - (d.cdf(score, false) - d.prob(score));
-            } else
-            {
+            } else {
                 int count = 0;
 
-                for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++)
-                {
+                for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
                     double randomScore = scoreVsItem(queries[j], item, termSim);
                     if (randomScore >= score) {
                         count++;
@@ -2847,13 +2728,11 @@ public class BOQA
 
                 res.marginals[item] = count / (double) this.SIZE_OF_SCORE_DISTRIBUTION;
             }
-        } else
-        {
+        } else {
             int count = 0;
             int[] shuffledTerms = newShuffledTerms();
 
-            for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++)
-            {
+            for (int j = 0; j < this.SIZE_OF_SCORE_DISTRIBUTION; j++) {
                 chooseTerms(rnd, observedTerms.length, randomizedTerms, shuffledTerms);
                 double randomScore = scoreVsItem(randomizedTerms, item, termSim);
                 if (randomScore >= score) {
@@ -2888,12 +2767,10 @@ public class BOQA
         long startTime = System.currentTimeMillis();
         long lastTime = startTime;
 
-        for (int i = 0; i < this.allItemList.size(); i++)
-        {
+        for (int i = 0; i < this.allItemList.size(); i++) {
             long time = System.currentTimeMillis();
 
-            if (time - lastTime > 5000)
-            {
+            if (time - lastTime > 5000) {
                 System.out
                     .println(termSim.name() + ": " + (time - startTime) + "ms " + i / (double) this.allItemList.size());
                 lastTime = time;
@@ -3032,12 +2909,10 @@ public class BOQA
         long startTime = System.currentTimeMillis();
         long lastTime = startTime;
 
-        for (int i = 0; i < this.allItemList.size(); i++)
-        {
+        for (int i = 0; i < this.allItemList.size(); i++) {
             long time = System.currentTimeMillis();
 
-            if (time - lastTime > 5000)
-            {
+            if (time - lastTime > 5000) {
                 System.out.println("mbScore: " + (time - startTime) + "ms " + i / (double) this.allItemList.size());
                 lastTime = time;
             }
@@ -3066,12 +2941,10 @@ public class BOQA
         int[][] queries = this.queryCache.getQueries(querySize);
         this.queriesLock.readLock().unlock();
 
-        if (queries == null)
-        {
+        if (queries == null) {
             this.queriesLock.writeLock().lock();
             queries = this.queryCache.getQueries(querySize);
-            if (queries == null)
-            {
+            if (queries == null) {
                 int[] shuffledTerms = newShuffledTerms();
 
                 queries = new int[this.SIZE_OF_SCORE_DISTRIBUTION][querySize];
@@ -3096,27 +2969,22 @@ public class BOQA
      */
     public void chooseTerms(Random rnd, int size, int[] chosen, int[] storage)
     {
-        if (this.FORBID_ILLEGAL_QUERIES)
-        {
+        if (this.FORBID_ILLEGAL_QUERIES) {
             boolean valid;
             int tries = 0;
 
-            do
-            {
+            do {
                 choose(rnd, size, chosen, storage);
                 valid = true;
 
-                outer: for (int i = 0; i < size; i++)
-                {
-                    for (int j = 0; j < size; j++)
-                    {
+                outer: for (int i = 0; i < size; i++) {
+                    for (int j = 0; j < size; j++) {
                         if (i == j) {
                             continue;
                         }
 
                         /* If a chosen term is descendant of another one, we reject the query. */
-                        if (this.slimGraph.isDescendant(chosen[i], chosen[j]))
-                        {
+                        if (this.slimGraph.isDescendant(chosen[i], chosen[j])) {
                             valid = false;
                             break outer;
                         }
@@ -3124,8 +2992,7 @@ public class BOQA
                 }
                 tries++;
             } while (!valid && tries < 512);
-        } else
-        {
+        } else {
             choose(rnd, size, chosen, storage);
         }
     }
@@ -3145,8 +3012,7 @@ public class BOQA
          * Choose terms randomly as the size of observed terms. We avoid drawing the same term but alter shuffledTerms
          * such that it can be used again in the next iteration. Note that this duplicates code from the above.
          */
-        for (int k = 0; k < size; k++)
-        {
+        for (int k = 0; k < size; k++) {
             int chosenIndex = rnd.nextInt(storage.length - k);
             int chosenTerm = storage[chosenIndex];
 

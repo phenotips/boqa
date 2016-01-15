@@ -155,8 +155,7 @@ public class ApproximatedEmpiricalDistribution implements IDistribution, Seriali
         str.append("min=" + this.min);
         str.append(" max=" + this.max + " ");
 
-        for (int bin = 0; bin < this.numberOfBins; bin++)
-        {
+        for (int bin = 0; bin < this.numberOfBins; bin++) {
             double obs = bin * (this.max - this.min) / this.numberOfBins + this.min;
             str.append(obs);
             str.append(" (");

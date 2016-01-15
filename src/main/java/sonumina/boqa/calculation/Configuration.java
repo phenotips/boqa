@@ -109,7 +109,8 @@ final public class Configuration implements Cloneable
     final public double falsePositiveRate()
     {
         return getCases(Configuration.NodeCase.FALSE_POSITIVE)
-            / (double) (getCases(Configuration.NodeCase.FALSE_POSITIVE) + getCases(Configuration.NodeCase.TRUE_NEGATIVE));
+            / (double) (getCases(Configuration.NodeCase.FALSE_POSITIVE)
+                + getCases(Configuration.NodeCase.TRUE_NEGATIVE));
     }
 
     /**
@@ -120,7 +121,8 @@ final public class Configuration implements Cloneable
     final public double falseNegativeRate()
     {
         return getCases(Configuration.NodeCase.FALSE_NEGATIVE)
-            / (double) (getCases(Configuration.NodeCase.FALSE_NEGATIVE) + getCases(Configuration.NodeCase.TRUE_POSITIVE));
+            / (double) (getCases(Configuration.NodeCase.FALSE_NEGATIVE)
+                + getCases(Configuration.NodeCase.TRUE_POSITIVE));
     }
 
     /**

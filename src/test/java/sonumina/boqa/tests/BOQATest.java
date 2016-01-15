@@ -64,16 +64,13 @@ public class BOQATest
 
         int[] chosen = new int[10];
 
-        for (int s = 1; s < 10; s++)
-        {
-            for (int t = 0; t < 10; t++)
-            {
+        for (int s = 1; s < 10; s++) {
+            for (int t = 0; t < 10; t++) {
                 BOQA.choose(rnd, s, chosen, storage);
 
                 /* Check storage array for validity */
                 boolean[] seen = new boolean[storage.length];
-                for (int i = 0; i < storage.length; i++)
-                {
+                for (int i = 0; i < storage.length; i++) {
                     assertEquals(false, seen[storage[i]]);
                     seen[storage[i]] = true;
                 }
@@ -83,8 +80,7 @@ public class BOQATest
                     seen[i] = false;
                 }
 
-                for (int i = 0; i < s; i++)
-                {
+                for (int i = 0; i < s; i++) {
                     assertEquals(false, seen[chosen[i]]);
                     seen[chosen[i]] = true;
                 }
@@ -183,8 +179,7 @@ public class BOQATest
         o.observations = obs;
         System.out.println("Testing item " + item);
 
-        for (int i = 0; i < boqa.items2DirectTerms[item].length; i++)
-        {
+        for (int i = 0; i < boqa.items2DirectTerms[item].length; i++) {
             int t = boqa.items2DirectTerms[item][i];
             obs[t] = true;
             boqa.activateAncestors(t, obs);
@@ -241,8 +236,7 @@ public class BOQATest
             new double[] { 0.032533088008779756, 0.022712933995512156, 0.8518284456000037, 0.046462766197852126,
             0.046462766197852126 };
 
-        for (int i = 0; i < boqa.allItemList.size(); i++)
-        {
+        for (int i = 0; i < boqa.allItemList.size(); i++) {
             System.out.println(i);
             assertEquals(resnikP[i], resnikResult.getMarginal(i), 0.05);
             assertEquals(resnikScore[i], resnikResult.getScore(i), 0.0001);
@@ -262,8 +256,7 @@ public class BOQATest
 
         System.out.println("Testing item " + item);
 
-        for (int i = 0; i < boqa.items2DirectTerms[item].length; i++)
-        {
+        for (int i = 0; i < boqa.items2DirectTerms[item].length; i++) {
             int t = boqa.items2DirectTerms[item][i];
             obs[t] = true;
             boqa.activateAncestors(t, obs);
@@ -312,8 +305,7 @@ public class BOQATest
             new double[] { 0.019674959868555657, 0.019674959868555657, 0.027214407363261438, 0.9061445759999325,
             0.027291096899695524 };
 
-        for (int i = 0; i < boqa.allItemList.size(); i++)
-        {
+        for (int i = 0; i < boqa.allItemList.size(); i++) {
             System.out.println(i);
             assertEquals(resnikP[i], resnikResult.getMarginal(i), 0.05);
             assertEquals(resnikScore[i], resnikResult.getScore(i), 0.0001);
@@ -350,13 +342,10 @@ public class BOQATest
                 @Override
                 public String getDotNodeAttributes(String vt)
                 {
-                    if (vt.startsWith("C"))
-                    {
+                    if (vt.startsWith("C")) {
                         StringBuilder info = new StringBuilder();
-                        for (Term t : data.graph)
-                        {
-                            if (t.getName().equals(vt))
-                            {
+                        for (Term t : data.graph) {
+                            if (t.getName().equals(vt)) {
                                 int idx = boqa.getSlimGraph().getVertexIndex(t);
                                 info.append("\\n" + boqa.getNumberOfItemsAnnotatedToTerm(idx) + " "
                                     + String.format("%g", boqa.terms2IC[idx]));
@@ -448,21 +437,17 @@ public class BOQATest
 
         /* This is older code which we keep for testing here */
         int[][] micaForItem = new int[boqa.allItemList.size()][boqa.getSlimGraph().getNumberOfVertices()];
-        for (int item = 0; item < boqa.allItemList.size(); item++)
-        {
+        for (int item = 0; item < boqa.allItemList.size(); item++) {
             /* The fixed set */
             int[] t2 = boqa.items2DirectTerms[item];
 
-            for (int to = 0; to < boqa.getSlimGraph().getNumberOfVertices(); to++)
-            {
+            for (int to = 0; to < boqa.getSlimGraph().getNumberOfVertices(); to++) {
                 double maxIC = Double.NEGATIVE_INFINITY;
                 int maxCommon = -1;
 
-                for (int ti : t2)
-                {
+                for (int ti : t2) {
                     int common = boqa.getCommonAncestorWithMaxIC(to, ti);
-                    if (boqa.terms2IC[common] > maxIC)
-                    {
+                    if (boqa.terms2IC[common] > maxIC) {
                         maxIC = boqa.terms2IC[common];
                         maxCommon = common;
                     }
@@ -495,8 +480,7 @@ public class BOQATest
         boqa.setup(hpo.graph, hpo.assoc);
 
         /* Check, mostSpecifc function */
-        for (int i = 0; i < 5000; i++)
-        {
+        for (int i = 0; i < 5000; i++) {
             Random rnd = new Random(System.currentTimeMillis());
 
             int item = rnd.nextInt(boqa.allItemList.size());
@@ -507,8 +491,7 @@ public class BOQATest
 
             /* Get full observation according to mostSpecificTerms() */
             boolean[] actualObservations = new boolean[boqa.getSlimGraph().getNumberOfVertices()];
-            for (int t : mst)
-            {
+            for (int t : mst) {
                 for (i = 0; i < boqa.term2Ancestors[t].length; i++) {
                     actualObservations[boqa.term2Ancestors[t][i]] = true;
                 }
@@ -516,8 +499,7 @@ public class BOQATest
 
             /* Get full observations according to source array */
             boolean[] expectedObservations = new boolean[boqa.getSlimGraph().getNumberOfVertices()];
-            for (int t : sparse.get())
-            {
+            for (int t : sparse.get()) {
                 for (i = 0; i < boqa.term2Ancestors[t].length; i++) {
                     expectedObservations[boqa.term2Ancestors[t][i]] = true;
                 }
@@ -545,18 +527,15 @@ public class BOQATest
 
         AssociationContainer assocs = new AssociationContainer();
 
-        for (int i = 0; i < 10000; i++)
-        {
+        for (int i = 0; i < 10000; i++) {
             ByteString item = new ByteString("item" + i);
 
             // Association a = new Association(item,slim.getVertex(10).getIDAsString());
             // assocs.addAssociation(a);
 
-            for (int j = 0; j < rnd.nextInt(16) + 2; j++)
-            {
+            for (int j = 0; j < rnd.nextInt(16) + 2; j++) {
                 Term t;
-                do
-                {
+                do {
                     t = slim.getVertex(rnd.nextInt(slim.getNumberOfVertices()));
                 } while (t.isObsolete());
                 Association a = new Association(item, t.getIDAsString());

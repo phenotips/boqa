@@ -154,8 +154,7 @@ public class Benchmark
         id.mb = this.boqa.mbScore(obs.observations);
 
         /******** The rest is for debugging purposes ********/
-        if (this.VERBOSE || provideGraph)
-        {
+        if (this.VERBOSE || provideGraph) {
             class Pair implements Comparable<Pair>
             {
                 double score;
@@ -184,8 +183,7 @@ public class Benchmark
 
             ArrayList<Pair> scoreList = new ArrayList<Pair>(this.boqa.allItemList.size());
             ArrayList<Pair> idealList = new ArrayList<Pair>(this.boqa.allItemList.size());
-            for (i = 0; i < this.boqa.allItemList.size(); i++)
-            {
+            for (i = 0; i < this.boqa.allItemList.size(); i++) {
                 scoreList.add(new Pair(i, modelWithoutFrequencies.getScore(i)));
                 idealList.add(new Pair(i, modelWithoutFrequencies.getMarginalIdeal(i)));
             }
@@ -206,8 +204,7 @@ public class Benchmark
             });
 
             /* Display top 10 */
-            for (i = 0; i < Math.min(10, scoreList.size()); i++)
-            {
+            for (i = 0; i < Math.min(10, scoreList.size()); i++) {
                 Pair p = scoreList.get(i);
                 boolean itIs = p.idx == item;
                 System.out.println((i + 1) + (itIs ? "(*)" : "") + ": " + this.boqa.allItemList.get(p.idx) + ": "
@@ -219,22 +216,18 @@ public class Benchmark
             int marginalIdealRank = 0;
 
             /* And where the searched item is */
-            for (i = 0; i < scoreList.size(); i++)
-            {
+            for (i = 0; i < scoreList.size(); i++) {
                 Pair p = scoreList.get(i);
                 // boolean itIs = p.idx == item;
-                if (p.idx == item)
-                {
+                if (p.idx == item) {
                     scoreRank = i + 1;
                     break;
                 }
             }
 
-            for (i = 0; i < idealList.size(); i++)
-            {
+            for (i = 0; i < idealList.size(); i++) {
                 Pair p = scoreList.get(i);
-                if (p.idx == item)
-                {
+                if (p.idx == item) {
                     marginalIdealRank = i + 1;
                     break;
                 }
@@ -259,16 +252,14 @@ public class Benchmark
             // System.out.println(" " + Stats.NodeCase.values()[i].name() + ": " +
             // modelWithoutFrequencies.stateMatrix[scoreList.get(0).idx][i]);
 
-            if (provideGraph)
-            {
+            if (provideGraph) {
                 /* Output the graph */
                 final HashSet<TermID> hiddenSet = new HashSet<TermID>();
                 for (i = 0; i < this.boqa.getTermsDirectlyAnnotatedTo(item).length; i++) {
                     hiddenSet.add(this.slimGraph.getVertex(this.boqa.getTermsDirectlyAnnotatedTo(item)[i]).getID());
                 }
                 final HashSet<TermID> observedSet = new HashSet<TermID>();
-                for (i = 0; i < observations.length; i++)
-                {
+                for (i = 0; i < observations.length; i++) {
                     if (observations[i]) {
                         observedSet.add(this.slimGraph.getVertex(i).getID());
                     }
@@ -286,31 +277,31 @@ public class Benchmark
                 allSet.addAll(topRankSet);
                 GODOTWriter.writeDOT(this.graph, new File("setting.dot"), null, allSet,
                     new AbstractDotAttributesProvider()
-                {
-                    @Override
-                    public String getDotNodeAttributes(TermID id)
                     {
-                        String fillcolor = "";
-                        String label = Benchmark.this.graph.getTerm(id).getName();
-                        String flags = "";
-                        if (hiddenSet.contains(id)) {
-                            fillcolor = ",style=filled,fillcolor=gray";
-                        }
+                        @Override
+                        public String getDotNodeAttributes(TermID id)
+                        {
+                            String fillcolor = "";
+                            String label = Benchmark.this.graph.getTerm(id).getName();
+                            String flags = "";
+                            if (hiddenSet.contains(id)) {
+                                fillcolor = ",style=filled,fillcolor=gray";
+                            }
 
-                        if (topRankSet.contains(id)) {
-                            flags += "1";
-                        }
-                        if (observedSet.contains(id)) {
-                            flags += "O";
-                        }
+                            if (topRankSet.contains(id)) {
+                                flags += "1";
+                            }
+                            if (observedSet.contains(id)) {
+                                flags += "O";
+                            }
 
-                        if (flags.length() != 0) {
-                            label += "(" + flags + ")";
-                        }
+                            if (flags.length() != 0) {
+                                label += "(" + flags + ")";
+                            }
 
-                        return "label=\"" + label + "\"" + fillcolor;
-                    }
-                });
+                            return "label=\"" + label + "\"" + fillcolor;
+                        }
+                    });
             }
         }
 
@@ -364,10 +355,8 @@ public class Benchmark
 
         int firstItemWithFrequencies = -1;
         int numItemsWithFrequencies = 0;
-        for (i = 0; i < boqa.getNumberOfItems(); i++)
-        {
-            if (boqa.hasItemFrequencies(i))
-            {
+        for (i = 0; i < boqa.getNumberOfItems(); i++) {
+            if (boqa.hasItemFrequencies(i)) {
                 numItemsWithFrequencies++;
                 if (firstItemWithFrequencies == -1) {
                     firstItemWithFrequencies = i;
@@ -383,8 +372,7 @@ public class Benchmark
 
         String evidenceString = "All";
         String[] evidenceCodes = boqa.getEvidenceCodes();
-        if (evidenceCodes != null && evidenceCodes.length > 0)
-        {
+        if (evidenceCodes != null && evidenceCodes.length > 0) {
             StringBuilder evidenceBuilder = new StringBuilder();
             evidenceBuilder.append("\"");
             evidenceBuilder.append(evidenceCodes[0]);
@@ -398,7 +386,8 @@ public class Benchmark
         /* Remember the parameter */
         BufferedWriter param = new BufferedWriter(new FileWriter(this.RESULT_NAME.split("\\.")[0] + "_param.txt"));
         param
-            .write("alpha\tbeta\tconsider.freqs.only\titems\tterms\tmax.terms\tmax.samples\tevidences\tmax.freq.terms\n");
+            .write(
+                "alpha\tbeta\tconsider.freqs.only\titems\tterms\tmax.terms\tmax.samples\tevidences\tmax.freq.terms\n");
         param.write(String.format("%g\t%g\t%b\t%d\t%d\t%d\t%d\t%s\t%d\n", ALPHA, BETA, CONSIDER_FREQUENCIES_ONLY,
             boqa.getNumberOfItems(), this.slimGraph.getNumberOfVertices(), maxTerms, this.samplesPerItem,
             evidenceString,
@@ -412,7 +401,8 @@ public class Benchmark
         load.append("\"" + new File(this.RESULT_NAME).getAbsolutePath() + "\", ");
         load.append("colClasses=c(\"integer\",\"integer\",rep(\"numeric\",13),\"integer\"),h=F");
         load.append(")");
-        load.append("\n colnames(d)<-c(\"run\",\"label\",\"score\",\"marg\",\"marg.ideal\", \"score.freq\",\"marg.freq\", \"marg.freq.ideal\", \"resnik.avg\", \"resnik.avg.p\", \"lin.avg\", \"lin.avg.p\", \"jc.avg\", \"jc.avg.p\", \"mb\", \"freq\");");
+        load.append(
+            "\n colnames(d)<-c(\"run\",\"label\",\"score\",\"marg\",\"marg.ideal\", \"score.freq\",\"marg.freq\", \"marg.freq.ideal\", \"resnik.avg\", \"resnik.avg.p\", \"lin.avg\", \"lin.avg.p\", \"jc.avg\", \"jc.avg.p\", \"mb\", \"freq\");");
         load.append("\n return (d);");
         load.append("\n}\n");
         load.append("boqa.name<-\"");
@@ -434,10 +424,8 @@ public class Benchmark
 
         int run = 0;
 
-        for (int sample = 0; sample < this.samplesPerItem; sample++)
-        {
-            for (i = 0; i < boqa.getNumberOfItems(); i++)
-            {
+        for (int sample = 0; sample < this.samplesPerItem; sample++) {
+            for (i = 0; i < boqa.getNumberOfItems(); i++) {
                 final long seed = rnd.nextLong();
                 final int item = i;
                 final int fixedRun = run++;
@@ -453,8 +441,7 @@ public class Benchmark
 
                         ExperimentStore store = processItem(item, false, new Random(seed));
 
-                        for (int j = 0; j < Benchmark.this.boqa.getNumberOfItems(); j++)
-                        {
+                        for (int j = 0; j < Benchmark.this.boqa.getNumberOfItems(); j++) {
                             resultBuilder.append(fixedRun);
                             resultBuilder.append("\t");
                             resultBuilder.append(item == j ? 1 : 0);

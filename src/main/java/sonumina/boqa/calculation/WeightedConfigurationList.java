@@ -65,8 +65,7 @@ public class WeightedConfigurationList implements Iterable<WeightedConfiguration
     {
         double sumOfScores = Math.log(0);
 
-        for (WeightedConfiguration tupel : this.tupelList)
-        {
+        for (WeightedConfiguration tupel : this.tupelList) {
             double score = tupel.stat.getScore(alpha, beta) + tupel.factor; /*
                                                                              * Multiply score by factor, remember that
                                                                              * we are operating in log space

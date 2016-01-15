@@ -148,10 +148,8 @@ public class InternalDatafiles extends Datafiles
             this.graphWithItems.addVertex(term.getName());
         }
 
-        for (Term term : terms)
-        {
-            for (ParentTermID pid : term.getParents())
-            {
+        for (Term term : terms) {
+            for (ParentTermID pid : term.getParents()) {
                 this.graphWithItems.addEdge(new Edge<String>(this.graph.getTerm(pid.termid).getName(), term.getName()));
             }
         }

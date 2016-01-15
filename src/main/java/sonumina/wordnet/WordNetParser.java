@@ -126,8 +126,7 @@ public class WordNetParser
 
         String line;
 
-        while ((line = in.readLine()) != null)
-        {
+        while ((line = in.readLine()) != null) {
             /* Ignore empty lines and comments */
             if (line.length() == 0) {
                 continue;
@@ -143,8 +142,7 @@ public class WordNetParser
             int wCnt = Integer.parseInt(entries[3], 16);
             ArrayList<String> words = new ArrayList<String>();
             int wCur = 4;
-            for (int i = 0; i < wCnt; i++)
-            {
+            for (int i = 0; i < wCnt; i++) {
                 String word = entries[wCur];
                 String lexId = entries[wCur + 1];
                 words.add(word);
@@ -152,16 +150,14 @@ public class WordNetParser
             }
 
             WordNetTerm source = wordNetMap.get(id);
-            if (source == null)
-            {
+            if (source == null) {
                 source = new WordNetTerm();
                 source.id = id;
             }
             source.type = "n";
             source.words = words;
 
-            if (!wordNetMap.containsKey(id))
-            {
+            if (!wordNetMap.containsKey(id)) {
                 wordNetMap.put(id, source);
                 wordNetGraph.addVertex(source);
             }
@@ -171,8 +167,7 @@ public class WordNetParser
 
             // if (source.id.equals("09917593"))
             // System.out.println(pCnt + " ");
-            for (int i = 0; i < pCnt; i++)
-            {
+            for (int i = 0; i < pCnt; i++) {
                 String pointerSymb = entries[pCur];
                 String synsetOffset = entries[pCur + 1];
                 String pos = entries[pCur + 2];
@@ -180,30 +175,25 @@ public class WordNetParser
 
                 if (pos.equals("n")
                     && (pointerSymb.equals("@") || pointerSymb.equals("@i") || pointerSymb.equals("~") || pointerSymb
-                        .equals("%p")))
-                {
+                        .equals("%p"))) {
                     // if (source.id.equals("09917593"))
                     // System.out.print(synsetOffset + "(" + pointerSymb + ")" + " ");
 
                     WordNetTerm dest = wordNetMap.get(synsetOffset);
-                    if (dest == null)
-                    {
+                    if (dest == null) {
                         dest = new WordNetTerm();
                         dest.id = synsetOffset;
                     }
 
-                    if (!wordNetMap.containsKey(synsetOffset))
-                    {
+                    if (!wordNetMap.containsKey(synsetOffset)) {
                         wordNetMap.put(synsetOffset, dest);
                         wordNetGraph.addVertex(dest);
                     }
 
                     Pointer e;
-                    if (pointerSymb.equals("~") || pointerSymb.equals("%p"))
-                    {
+                    if (pointerSymb.equals("~") || pointerSymb.equals("%p")) {
                         e = new Pointer(source, dest);
-                    } else
-                    {
+                    } else {
                         e = new Pointer(dest, source);
                     }
 
@@ -220,8 +210,7 @@ public class WordNetParser
 
             String glos = null;
 
-            if (entries[pCur].equals("|"))
-            {
+            if (entries[pCur].equals("|")) {
                 int pos = line.indexOf('|');
                 if (pos > 0 && line.length() > pos + 2) {
                     glos = line.substring(pos + 2);
@@ -233,15 +222,12 @@ public class WordNetParser
         /* Now construct the terms */
         int numRelations = 0;
         HashSet<Term> terms = new HashSet<Term>();
-        for (WordNetTerm t : wordNetGraph)
-        {
+        for (WordNetTerm t : wordNetGraph) {
             ArrayList<ParentTermID> parentList = new ArrayList<ParentTermID>();
 
             Iterator<WordNetTerm> iter = wordNetGraph.getParentNodes(t);
-            if (iter != null)
-            {
-                while (iter.hasNext())
-                {
+            if (iter != null) {
+                while (iter.hasNext()) {
                     WordNetTerm p = iter.next();
                     ParentTermID pt = new ParentTermID(new TermID("WNO:" + p.id), TermRelation.IS_A);
                     parentList.add(pt);

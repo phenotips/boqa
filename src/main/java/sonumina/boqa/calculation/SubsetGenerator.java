@@ -83,17 +83,14 @@ class SubsetGenerator
      */
     public Subset next()
     {
-        if (this.subset.r == 0)
-        {
-            if (this.firstSubset)
-            {
+        if (this.subset.r == 0) {
+            if (this.firstSubset) {
                 this.firstSubset = false;
                 return this.subset;
             }
 
             /* Special case when subset of an empty set or no subset should be generated */
-            if (this.n == 0 || this.m == 0)
-            {
+            if (this.n == 0 || this.m == 0) {
                 this.firstSubset = true;
                 return null;
             }
@@ -107,20 +104,17 @@ class SubsetGenerator
         int[] j = this.subset.j;
         int r = this.subset.r;
 
-        if (j[r - 1] < this.n - 1 && r < this.m)
-        {
+        if (j[r - 1] < this.n - 1 && r < this.m) {
             /* extend */
             j[r] = j[r - 1] + 1;
             r++;
-        } else
-        {
+        } else {
             /* modified reduce */
             if (j[r - 1] >= this.n - 1) {
                 r--;
             }
 
-            if (r == 0)
-            {
+            if (r == 0) {
                 this.subset.r = 0;
                 this.firstSubset = true;
                 return null;

@@ -38,8 +38,7 @@ public class WordNetParserTest
     public void setup() throws IOException, InterruptedException
     {
         File dest = new File("WordNet-3.0.tar.bz2");
-        if (!dest.exists())
-        {
+        if (!dest.exists()) {
             int c;
             Process p = Runtime.getRuntime().exec("wget http://wordnetcode.princeton.edu/3.0/WordNet-3.0.tar.bz2");
 
@@ -53,8 +52,7 @@ public class WordNetParserTest
         }
 
         File wordnet = new File("WordNet-3.0/dict/data.noun");
-        if (!wordnet.exists())
-        {
+        if (!wordnet.exists()) {
             int c;
             Process p = Runtime.getRuntime().exec("tar vxjf WordNet-3.0.tar.bz2");
             while ((c = p.getErrorStream().read()) != -1) {
@@ -102,15 +100,12 @@ public class WordNetParserTest
 
         AssociationContainer assocs = new AssociationContainer();
 
-        for (int i = 0; i < 100000; i++)
-        {
+        for (int i = 0; i < 100000; i++) {
             ByteString item = new ByteString("item" + i);
 
-            for (int j = 0; j < rnd.nextInt(16) + 2; j++)
-            {
+            for (int j = 0; j < rnd.nextInt(16) + 2; j++) {
                 Term t;
-                do
-                {
+                do {
                     t = slim.getVertex(rnd.nextInt(slim.getNumberOfVertices()));
                 } while (t.isObsolete());
 

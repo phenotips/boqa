@@ -31,8 +31,7 @@ public class ApproximatedEmpiricalDistributionTest
     @Test
     public void test2()
     {
-        double[] obs = new double[]
-        {
+        double[] obs = new double[] {
         0.1, 0.11, 0.13, 0.231, 0.1213,
         0.1345, 0.33, 1.323, 2.32, 1.234,
         2.2, 1.1, 1.1, 1.65, 1.7,

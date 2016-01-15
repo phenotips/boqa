@@ -105,8 +105,7 @@ public class BOQABenchmark
             CommandLine cl;
             cl = parser.parse(opt, args);
 
-            if (cl.hasOption('h'))
-            {
+            if (cl.hasOption('h')) {
                 HelpFormatter f = new HelpFormatter();
                 f.printHelp(BOQABenchmark.class.getName(), opt);
                 System.exit(0);

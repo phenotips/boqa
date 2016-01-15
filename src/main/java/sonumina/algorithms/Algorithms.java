@@ -71,24 +71,20 @@ public class Algorithms
 
         int i = 0;
 
-        for (V v : vertices)
-        {
+        for (V v : vertices) {
             if (v != start) {
                 toDo[i++] = v;
             }
         }
 
-        while (toDoLength > 0)
-        {
+        while (toDoLength > 0) {
             double minDistance = Double.MAX_VALUE;
             int newStartIndex = -1;
 
-            for (i = 0; i < toDoLength; i++)
-            {
+            for (i = 0; i < toDoLength; i++) {
                 V v = (V) toDo[i];
                 double nd = distance.distance(start, v);
-                if (nd < minDistance)
-                {
+                if (nd < minDistance) {
                     newStartIndex = i;
                     minDistance = nd;
                 }
@@ -139,18 +135,14 @@ public class Algorithms
         int distance = 0;
         int i = 0, j = 0;
 
-        while (i < va.length && j < vb.length)
-        {
-            if (va[i] < vb[j])
-            {
+        while (i < va.length && j < vb.length) {
+            if (va[i] < vb[j]) {
                 distance++;
                 i++;
-            } else if (va[i] > vb[j])
-            {
+            } else if (va[i] > vb[j]) {
                 distance++;
                 j++;
-            } else
-            {
+            } else {
                 i++;
                 j++;
             }

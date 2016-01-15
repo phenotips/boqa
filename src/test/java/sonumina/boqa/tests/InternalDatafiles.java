@@ -66,6 +66,7 @@ public class InternalDatafiles extends Datafiles
 {
     private DirectedGraph<String> graphWithItems;
 
+    @SuppressWarnings("deprecation")
     public InternalDatafiles()
     {
         /* Go Graph */
